@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Axis2 Web Service Implementation</title>
+</head>
+<body class="composite">
+
+<div id="bodycol">
+<div class="app">
+<div class="h3">
+
+<p>Axis2 is one of the most widely-used web services stacks for Java, providing support
+for both basic SOAP message exchange and a variety of add-on technologies (such as
+WS-Security and WS-ReliableMessaging) through extension modules. JiBX data binding can
+be used directly in Axis2, so you can work with your generated OTA data model on both
+client and server code. You do need to generate some linkage code first, though, and you
+also need to replace the JiBX jars included in the Axis2 distribution (which use an older
+version of JiBX) with those from the current JiBX release.</p>
+
+</div>
+<div class="h3">
+
+<h3><a name="setup"></a>Axis2 setup</h3>
+
+<p>You need to install Axis2, and update the JiBX jars included in the Axis2 distribution,
+before you can actually build the sample web service code. To do this, first download the
+<a href="http://ws.apache.org/axis2/">Axis2</a> binary distribution and expand it to a
+directory on your system. Next, delete the <i>jibx-*</i> jars from the <i>lib</i> directory
+of the Axis2 distribution, and copy the corresponding jar files (<i>jibx-bind.jar</i> and
+<i>jibx-run.jar</i>) from the <i>lib</i> directory of your JiBX distribution into the Axis2
+<i>lib</i> directory.</p>
+
+<p>Once you've updated the JiBX jars, you can create an Axis2 war file for deployment to
+a web server such as Tomcat. To do this, open a console to the <i>webapp</i> directory of
+the Axis2 distribution and type <code>ant</code> to run the <i>build.xml</i> script. This
+creates an <i>axis2.war</i> file in the <i>dist</i> directory of the Axis2 installation.
+You can deploy this war file directly to any web server supporting the Java Servlet API
+(such as <a href="http://tomcat.apache.org/">Apache Tomcat</a>) to create an Axis2
+server installation.</p>
+
+<p>Note that if you're starting out with an Axis2 server installation already in place,
+you'll need to replace the <i>jibx-run-#.jar</i> file (where '#' is a version number)
+with the <i>jibx-run.jar</i> from your JiBX installation, and restart the server, before
+you can deploy the example web service .aar file as discussed below.</p>
+
+
+</div>
+<div class="h3">
+
+<h3><a name="buildrun"></a>Building and running the code</h3>
+
+<p>After you've set up your Axis2 installation, you next need to configure the supplied
+web service build. First edit the <i>build.properties</i> file in the <i>webservice/axis2</i>
+directory of your JiBX OTA distribution, and set the path to your Axis2 installation (using
+doubled '\' directory separator characters on Windows, or Unix/Linux-style '/' directory
+separator characters, as with the other .properties files). Next edit the
+<i>air-service.properties</i> file in the <i>webservice/axis2/config</i> directory
+to set the path to the directory containing the documents you want to use as response
+messages (which can just be the directory containing the OTA sample documents). If you're
+running Axis2 on a different host system, or on a port other than 8080, you also need to
+edit the <i>air-client.properties</i> file in the same directory and change the service
+endpoint address.</p>
+
+<p>You can then open a console to the <i>webservice/axis2</i> directory and type <code>ant
+prepare</code>. This runs a sequence of build steps, generating and compiling client and
+server linkage code for Axis2 and merging it with the supplied implementation code, then
+creating an <i>AirService.aar</i> Axis2 archive file which can be deployed to the Axis2
+server installation (by copying it into the <i>WEB-INF/services</i> directory of the
+expanded Axis2 server war, or by uploading it through the Axis2 administration web page
+interface).</p>
+
+<p>Once you've deployed the service to your Axis2 server installation, you can try it out
+using the supplied client by typing <code>ant run</code> on the console. As supplied, this
+sends several of the OTA sample request documents to the server, printing the response
+received for each request.</p>
+
+
+</div>
+<div class="h3">
+
+<h3><a name="code"></a>Implementation code</h3>
+
+<p>The Axis2 client implementation code is in the <i>webservice/axis2/client/src</i> directory.
+The Axis2 linkage code generated from the WSDL service definition provides an interface
+with methods matching those defined in the original Java code used to generate the WSDL,
+and the client just creates an instance of the Axis2 stub class and calls those methods
+on the stub to invoke server operations.</p>
+
+<p>The Axis2 server implementation code is in the <i>webservice/axis2/server/src</i> directory.
+Similarly to the client side, the generated Axis2 linkage code calls out to an interface
+with methods matching those defined in the original Java code used to generate the WSDL.
+The server implementation code just implements that generated interface class.</p>
+
+<p>For a more-detailed look at how Axis2 links in to data binding code for processing service
+messages, and a (somewhat dated, but still largely accurate) comparison of the main data
+binding frameworks supported by Axis2, see <a href="http://www.ibm.com/developerworks/java/library/j-java3.html">Java
+Web Services: Axis2 Data Binding</a>, along with the newer <a href="http://www.ibm.com/developerworks/java/library/j-jws8.html">Java
+Web services: JAXB and JAX-WS in Axis2</a>, both by JiBX and JiBX/OTA primary developer
+Dennis Sosnoski.</p>
+
+
+</div>
+<div class="h3">
+
+<h3><a name="advantages"></a>Axis2 advantages</h3>
+
+<p>Axis2 has some significant advantages as a platform for developing OTA web services.
+It's stable and fairly solid, and allows for plug-in extension modules to implement add-on
+technologies such as WS-Security (for details of WS-Security and it's use with Axis2 see
+<a href="http://www.ibm.com/developerworks/java/library/j-jws4/index.html">Java Web services:
+Axis2 WS-Security basics</a> and <a href="http://www.ibm.com/developerworks/java/library/j-jws5/index.html">Java
+Web services: Axis2 WS-Security signing and encryption</a>, along with other articles in the
+<a href="http://www.ibm.com/developerworks/views/java/libraryview.jsp?search_by=java+web+services:">Java
+Web Services</a> series by JiBX and JiBX/OTA primary developer Dennis Sosnoski).</p>
+
+<p>WS-Security isn't necessary for many web service applications. When clients connect
+directly to servers (rather than going through intermediaries), SSL or TLS can instead be
+used to keep data secure, with much lower overhead than WS-Security. But in cases where
+WS-Security is needed (including when messages are routed through untrusted intermediary
+services, or when digital signatures are needed for audit trails), Axis2 allows you to
+easily use JiBX data binding to convert documents to and from Java object structures.</p>
+
+</div>
+</div>
+</div>
+
+</body>
+</html>

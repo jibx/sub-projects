@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.jibx.ota.osgi</groupId>
+    <artifactId>jibx-ota-osgi</artifactId>
+    <version>1.2.3-SNAPSHOT</version>
+  </parent>
+  
+  <artifactId>jibx-ota-osgi-misc</artifactId>
+  <packaging>bundle</packaging>
+
+  <name>jibx-ota-osgi-misc (opentravel OSGI misc bundle)</name>
+
+  <properties>
+    <systemName>misc</systemName>
+    <schemaFilter>*</schemaFilter>
+  </properties>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <groupId>org.jibx</groupId>
+        <artifactId>maven-jibx-plugin</artifactId>
+        <version>${jibx-plugin-version}</version>
+
+        <executions>
+          <execution>
+            <id>generate-java-code-from-schema</id>
+            <goals>
+              <goal>schema-codegen</goal>
+            </goals>
+	        <configuration>
+	        	<directory>${schemaDirectory}</directory>
+	            <customizations>
+	            	<customization>${customization-file}</customization>
+	            </customizations>
+	            <includes>
+	                <!-- include>*.xsd</include -->
+	                <include>OTA_Cancel*.xsd</include>
+	                <include>OTA_Authorization*.xsd</include>
+	                <include>OTA_Cancel*.xsd</include>
+	                <include>OTA_Delete*.xsd</include>
+	                <include>OTA_Error*.xsd</include>
+	                <include>OTA_FileAttachment*.xsd</include>
+	                <include>OTA_Notif*.xsd</include>
+	                <include>OTA_Purchase*.xsd</include>
+	                <include>OTA_Read*.xsd</include>
+	                <include>OTA_ResRetrieveRS.xsd</include>
+	            </includes>
+                <includeBindings>
+                  <includeBinding>${basedir}/../jibx-ota-osgi-base/target/generated-sources/base-binding.xml</includeBinding>
+                <!-- 
+                  <includeBinding>${basedir}/../jibx-ota-osgi-hotel/target/generated-sources/hotel-binding.xml</includeBinding>
+                  <includeBinding>${basedir}/../jibx-ota-osgi-cruise/target/generated-sources/cruise-binding.xml</includeBinding>
+                  <includeBinding>${basedir}/../jibx-ota-osgi-pkg/target/generated-sources/pkg-binding.xml</includeBinding>
+                  <includeBinding>${basedir}/../jibx-ota-osgi-screen/target/generated-sources/screen-binding.xml</includeBinding>
+                  <includeBinding>${basedir}/../jibx-ota-osgi-golf/target/generated-sources/golf-binding.xml</includeBinding>
+                  <includeBinding>${basedir}/../jibx-ota-osgi-rail/target/generated-sources/rail-binding.xml</includeBinding>
+                  <includeBinding>${basedir}/../jibx-ota-osgi-insurance/target/generated-sources/insurance-binding.xml</includeBinding>
+                  <includeBinding>${basedir}/../jibx-ota-osgi-dynamicpkg/target/generated-sources/dynamicpkg-binding.xml</includeBinding>
+                  <includeBinding>${basedir}/../jibx-ota-osgi-loyalty/target/generated-sources/loyalty-binding.xml</includeBinding>
+                  <includeBinding>${basedir}/../jibx-ota-osgi-destactivity/target/generated-sources/destactivity-binding.xml</includeBinding>
+                  <includeBinding>${basedir}/../jibx-ota-osgi-tour/target/generated-sources/tour-binding.xml</includeBinding>
+                  <includeBinding>${basedir}/../jibx-ota-osgi-travelitinerary/target/generated-sources/travelitinerary-binding.xml</includeBinding>
+                  <includeBinding>${basedir}/../jibx-ota-osgi-ping/target/generated-sources/ping-binding.xml</includeBinding>
+                 -->
+                </includeBindings>
+	        </configuration>
+          </execution>
+          <execution>
+              <id>compile-binding</id>
+              <goals>
+                  <goal>bind</goal>
+              </goals>
+              <configuration>
+                  <directory>target/generated-sources</directory>
+                  <includes>
+                    <include>${systemName}-binding.xml</include>
+                  </includes>
+              </configuration>
+          </execution>
+        </executions>
+	  </plugin>
+
+  </plugins>
+  </build>
+ 
+  <dependencies>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-hotel</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <!-- 
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-hotel</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-cruise</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-golf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-rail</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-insurance</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-pkg</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-dynamicpkg</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-screen</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-loyalty</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-destactivity</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-tour</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-travelitinerary</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-ping</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+     -->
+  </dependencies>
+
+</project>

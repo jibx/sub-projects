@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>oss-parent</artifactId>
+    <groupId>org.sonatype.oss</groupId>
+    <version>1</version>
+  </parent>
+  
+  <groupId>org.jibx.ota.osgi</groupId>
+  <artifactId>jibx-ota-maven</artifactId>
+  <version>1.2.3-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>jibx-ota-maven (opentravel OSGI maven projects)</name>
+  <url>http://jibx.sourceforge.net</url>
+  <description>JiBX schema - Opentravel OSGI Packaging project</description>
+
+  <properties>
+    <jibx-version>1.2.3-SNAPSHOT</jibx-version>
+    <jibx-plugin-version>1.2.2</jibx-plugin-version>
+    <joda-time-version>2.0</joda-time-version>
+  </properties>
+
+  <licenses>
+    <license>
+      <name>BSD</name>
+      <url>http://jibx.sourceforge.net/jibx-license.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <modules>
+    <module>jibx-ota-osgi</module>
+
+    <module>jibx-ota-osgi-archetype</module>
+  </modules>  
+
+
+  <profiles>
+    <profile>
+      <id>release-sign-artifacts</id>
+      <activation>
+        <property>
+          <name>performRelease</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.0</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+  </profiles>
+
+  <distributionManagement>
+    <repository>
+      <id>jibx.sourceforge.net</id>
+      <url>scp://shell.sourceforge.net/home/groups/j/ji/jibx/htdocs/maven2</url>
+    </repository>
+    <!-- site> ** Documentation is currently part of the jibx documentation **
+      <id>jibx.sourceforge.net</id>
+      <url>scp://shell.sourceforge.net/home/groups/j/ji/jibx/htdocs/maven2</url>
+    </site> -->
+  </distributionManagement>
+  
+  <issueManagement>
+    <system>jira</system>
+    <url>http://jira.codehaus.org/browse/JIBX</url>
+  </issueManagement>
+  
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
+  
+  <!-- All artifacts live in the maven central repository
+  <repositories>
+    <repository>
+      <id>jibx.sourceforge.net</id>
+      <name>JiBX repository</name>
+      <url>http://jibx.sourceforge.net/maven2</url>
+      <releases>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+   -->
+   
+  <scm>
+    <url>http://jibx.svn.sourceforge.net/viewvc/jibx/trunk/jibx-ota/maven/jibx-ota-maven/</url>
+    <connection>scm:svn:https://jibx.svn.sourceforge.net/svnroot/jibx/trunk/jibx-ota/maven/jibx-ota-maven/</connection>
+    <developerConnection>scm:svn:https://jibx.svn.sourceforge.net/svnroot/jibx/trunk/jibx-ota/maven/jibx-ota-maven/</developerConnection>
+  </scm>
+
+</project>

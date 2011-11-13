@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.jibx.ota.osgi</groupId>
+    <artifactId>jibx-ota-osgi</artifactId>
+    <version>1.2.3-SNAPSHOT</version>
+  </parent>
+  
+  <artifactId>jibx-ota-osgi-all</artifactId>
+  <packaging>pom</packaging>
+  <name>jibx-ota-osgi-all (Dependency on all osgi bundles)</name>
+
+  <dependencies>
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-base</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-air</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-veh</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-profile</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-hotel</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-destactivity</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-pkg</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-travelitinerary</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-tour</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-dynamicpkg</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-insurance</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-loyalty</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-cruise</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-golf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-rail</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-screen</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-ping</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-misc</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+  </dependencies>
+</project>

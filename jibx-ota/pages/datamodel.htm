@@ -1,0 +1,321 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Generating a Data Model for OTA Schemas</title>
+</head>
+<body class="composite">
+
+<div id="bodycol">
+<div class="app">
+<div class="h3">
+
+<h3><a name="setup"></a>Setting up for build</h3>
+
+<p>Before you can generate a data model for the OTA schemas you first need to download
+and install both <a href="http://www.jibx.org">JiBX</a> and a version of the OTA schema
+distribution. Once you've done this, edit the <i>build.properties</i> file found in the
+root directory of JiBX/OTA distribution and set the paths to these installations. If you're
+running on Windows, you'll need to double each '\' directory separator character in all
+paths, since Java uses '\' as an escape character in properties files (this also applies to
+all the other .properties files used in the project) - or you can just use Unix/Linux-style
+paths, with '/' directory separator characters, even on Windows. The
+<code>ota-schemas</code> path needs to be the actual directory containing the standard
+(not "flattened") OTA schema definitions (<i>.xsd</i> files). The <code>ota-samples</code>
+path needs to be the actual directory containing the sample documents (which may be the
+same directory as that containing the schemas, but still needs to be entered separately).</p>
+
+</div>
+<div class="h3">
+
+<h3><a name="full"></a>Full build</h3>
+
+<p>The first example data model is generated from the full set of OTA schemas in a single
+step. It uses a <a href="http://www.jibx.org/fromschema/codegen.html">CodeGen</a>
+customization file to change some of the CodeGen default handling, including creating a
+number of separate packages for the data model classes. Here's a partial listing of that
+customization file, included in the download as <i>custom-full.xml</i>:</p>
+
+<div id="source"><pre>&lt;schema-set xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    generate-all="true" delete-annotations="true" any-handling="dom"
+    type-substitutions="xs:integer xs:int xs:decimal xs:float">
+  &lt;name-converter strip-suffixes="_Type Type"/>
+  &lt;class-decorator class="org.jibx.schema.codegen.extend.CollectionMethodsDecorator"/>
+  &lt;schema-set package="org.ota.air" names="OTA_Air*.xsd">
+    &lt;name-converter strip-prefixes="OTA_Air"/>
+    &lt;schema-set generate-all="false" prefer-inline="true" names="OTA_AirCommonTypes.xsd OTA_AirPreferences.xsd"/>
+  &lt;/schema-set>
+  &lt;schema-set package="org.ota.shared" generate-all="false" prefer-inline="true"
+      names="OTA_Common*.xsd OTA_SimpleTypes.xsd"/>
+  &lt;schema-set package="org.ota.cruise" names="OTA_Cruise*.xsd">
+    &lt;name-converter strip-prefixes="OTA_Cruise"/>
+    &lt;schema-set generate-all="false" prefer-inline="true" names="OTA_CruiseCommonTypes.xsd"/>
+  &lt;/schema-set>
+  ...
+  &lt;schema-set package="org.ota.vehicle" names="OTA_Veh*.xsd">
+    &lt;name-converter strip-prefixes="OTA_Veh"/>
+  &lt;/schema-set>
+&lt;/schema-set>
+</pre></div>
+
+<p>Without going into all the details, you can see from looking at this customization
+document how the various OTA schema definitions are grouped into sets based on file names
+and separate packages are configured for each set of schemas. The customization also
+configures some type substitutions (using <code>xs:int</code> and <code>xs:float</code>
+representations for values defined as awkward <code>xs:integer</code> and
+<code>xs:decimal</code> types in the schemas) and name simplifications (via the
+<code>&lt;name-converter strip-suffixes="..."</code> and <code>&lt;name-converter
+strip-prefixes="..."</code> elements) intended to make the generated Java data model
+easier to use. For full details of CodeGen customizations, see the documentation
+included in the JiBX distribution (which includes some detailed examples based on a
+subset of OTA schemas).</p>
+
+<p>The Ant <i>build.xml</i> script runs CodeGen as shown below:</p>
+
+<div id="source"><pre>  &lt;!-- generate full set of classes and bindings all-at-once -->
+  &lt;target name="generate-full" depends="check-runtime,clean">
+    
+    &lt;echo message="Running code generation from schema"/>
+    &lt;delete quiet="true" dir="${basedir}/gen/src"/>
+    &lt;java classname="org.jibx.schema.codegen.CodeGen" fork="yes"
+        classpathref="classpath" failonerror="true">
+      &lt;jvmarg value="-Xms512M"/>
+      &lt;jvmarg value="-Xmx512M"/>
+      &lt;arg value="-c"/>
+      &lt;arg value="${basedir}/custom-full.xml"/>
+      &lt;arg value="-s"/>
+      &lt;arg value="${ota-schemas}"/>
+      &lt;arg value="-t"/>
+      &lt;arg value="${basedir}/gen/src"/>
+      &lt;arg value="*RQ.xsd"/>
+      &lt;arg value="*RS.xsd"/>
+    &lt;/java>
+    
+  &lt;/target>
+</pre></div>
+
+<p>The <code>&lt;jvmarg></code> lines configure added memory for use by CodeGen, which
+makes the code generation for large sets of schemas (such as the OTA schemas) much faster
+than would be the case with the default memory settings. The regular arguments set the
+customizations file (<code>-c</code> and following value), the base directory for the
+schema definitions (<code>-s</code> and following value), the target directory for the
+generated code and JiBX binding definition (<code>-t</code> and following value), and
+the actual schemas to be processed (the remaining arguments, in this case using patterns
+to select all the request and response message schemas).</p>
+
+<p>You can run the basic code generation from a console open to the root directory of the
+JiBX/OTA installation by typing <code>ant generate-full</code>. This just generates the data
+model to the target directory (<i>gen/src</i>, relative to the installation root directory).
+You can then type <code>ant build-full</code> to compile the classes, run the JiBX binding
+compiler, and assemble the classes into a jar file. Once that's done you can type <code>ant
+build-test test</code> to build the test program and actually run the sample document
+roundtrip test. As a simpler alternative, you can just type <code>ant full</code> to generate
+and build the data model and test program and actually run the test program.</p>
+
+<p>If you try the provided test with the OTA 2009A schemas and sample documents you'll get
+a failure (actually six failures, in total). This is due to encoding errors in the OTA sample
+documents, and does not represent any problem with the test program or data model.</p>
+
+<p>You can build JavaDocs for the generated data model code by typing <code>ant
+javadoc-full</code> on the console. This builds the JavaDocs in the <i>docs/apidocs</i>
+directory (which you can also view <a href="http://www.jibx.org/jibxota/apidocs">online</a>).
+The CodeGen tool converts schema documentation to JavaDocs in the generated
+source code, so the JavaDocs generated from the source code contain much more useful
+information than is typically the case with other tools generating code from schemas.</p>
+
+</div>
+<div class="h3">
+
+<h3><a name="modular"></a>Modular build</h3>
+
+<p>The second example data model is generated as two separate modules. The first
+module, referred to here as the "base" module, consists of classes corresponding to
+the common schema definitions shared across different types of message. The second module,
+referred to as the "extension" module, consists of classes corresponding to all the
+actual message definitions. The classes in the extension module use the classes in the
+base module via composition or extension.</p>
+
+<p>As with the first example, each module of the second example is generated using a
+customization file. Here's the customization file used for the base module, included in
+the download as <i>custom-modular-base.xml</i>:</p>
+
+<div id="source"><pre>&lt;schema-set xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    generate-all="true" delete-annotations="true" any-handling="dom"
+    type-substitutions="xs:integer xs:int xs:decimal xs:float"
+    package="org.ota.shared" binding-file-name="base-binding.xml">
+  &lt;name-converter strip-suffixes="_Type Type"/>
+  &lt;schema-type type-name="dateTime" format-name="DateTime.UTC"/>
+  &lt;schema-type type-name="date" format-name="LocalDate.default"/>
+  &lt;schema-type type-name="time" format-name="LocalTime.local"/>
+  &lt;class-decorator class="org.jibx.schema.codegen.extend.CollectionMethodsDecorator"/>
+&lt;/schema-set>
+</pre></div>
+
+<p>The first part of this customization file is very similar to that used for the earlier
+example. The added <code>&lt;schema-type></code> elements in this file demonstrate changing
+the handling of built-in schema simple types, in this case using
+<a href="http://joda-time.sourceforge.net/">Joda Time</a> classes for representing schema
+date/time types.</p>
+
+<p>The customization file used for the second module, <i>custom-modular-extends.xml</i>,
+is another variation on the customization used for the first example. It again uses
+<code>&lt;schema-type></code> customizations to specify Joda Time handling of the schema
+date/time types, and leaves out references to the schemas included by the base module.</p>
+
+<p>The Ant <i>build.xml</i> script runs CodeGen separately for each module. The target
+for the base module is shown below:</p>
+
+<div id="source"><pre>  &lt;!-- generate only base classes and binding as a separate step -->
+  &lt;target name="generate-base" depends="check-runtime,clean">
+    
+    &lt;echo message="Running base code generation from schema"/>
+    &lt;delete quiet="true" dir="${basedir}/gen/base"/>
+    &lt;java classname="org.jibx.schema.codegen.CodeGen" fork="yes"
+        classpathref="classpath" failonerror="true">
+      &lt;jvmarg value="-Xms512M"/>
+      &lt;jvmarg value="-Xmx512M"/>
+      &lt;arg value="-c"/>
+      &lt;arg value="${basedir}/custom-modular-base.xml"/>
+      &lt;arg value="-s"/>
+      &lt;arg value="${ota-schemas}"/>
+      &lt;arg value="-t"/>
+      &lt;arg value="${basedir}/gen/base"/>
+      &lt;arg value="-u"/>
+      &lt;arg value="http://www.opentravel.org/OTA/2003/05"/>
+      &lt;arg value="OTA_Common*.xsd"/>
+      &lt;arg value="OTA_SimpleTypes.xsd"/>
+    &lt;/java>
+    
+  &lt;/target>
+</pre></div>
+
+<p>Most of this build target is the same as for the first example. The differences are that
+this one uses a different target directory (<i>gen/base</i> rather than <i>gen/src</i>),
+passes an additional argument pair, and specifies only a few schema files (those
+with names starting with "OTA_Common" - <i>OTA_CommonPrefs.xsd</i> and
+<i>OTA_CommonTypes.xsd</i> - and <i>OTA_SimpleTypes.xsd</i>). The added <code>-u</code>
+argument tells CodeGen to use the following argument as the namespace to be applied to
+schemas without a namespace, a step that's necessary because these common schemas don't
+specify any namespace, instead taking on the namespace of the OTA message schemas when the
+common schemas are referenced.</p>
+
+<p>The target for the extension module is shown below:</p>
+
+<div id="source"><pre>  &lt;!-- generate extension classes and binding as a separate step -->
+  &lt;target name="generate-extend" depends="check-runtime,check-base,clean-partial">
+    
+    &lt;echo message="Running extension code generation from schema"/>
+    &lt;delete quiet="true" dir="${basedir}/gen/src"/>
+    &lt;java classname="org.jibx.schema.codegen.CodeGen" fork="yes" failonerror="true">
+      &lt;classpath>
+        &lt;path refid="classpath"/>
+        &lt;pathelement location="${basedir}/lib/base.jar"/>
+      &lt;/classpath>
+      &lt;jvmarg value="-Xms512M"/>
+      &lt;jvmarg value="-Xmx512M"/>
+      &lt;arg value="-c"/>
+      &lt;arg value="${basedir}/custom-modular-extends.xml"/>
+      &lt;arg value="-s"/>
+      &lt;arg value="${ota-schemas}"/>
+      &lt;arg value="-t"/>
+      &lt;arg value="${basedir}/gen/src"/>
+      &lt;arg value="-i"/>
+      &lt;arg value="classpath:META-INF/base-binding.xml"/>
+      &lt;arg value="*RQ.xsd"/>
+      &lt;arg value="*RS.xsd"/>
+    &lt;/java>
+    
+  &lt;/target>
+</pre></div>
+
+<p>This build target has a few more differences from the prior ones. First off, it uses
+a classpath which includes a <i>base.jar</i> file. This jar file is created by the actual
+build steps for the base module (not shown here, but in the <i>build.xml</i>), and is
+needed as a resource for use by the extension code generation. It also includes another
+pair of arguments passed to CodeGen, a <code>-i</code> argument followed by the path to
+the base module binding definition (here accessed from the jar file, with a classpath
+reference). This tells CodeGen to include the specified binding(s) in the code generation
+and use the existing bindings for any matching schema components.</p>
+
+<p>You can generate code for the base module from a console by typing <code>ant
+generate-base</code>. This just generates the base data model to the target directory
+(<i>gen/base</i>). You can then type <code>ant build-base</code> to compile the classes,
+run the JiBX binding compiler, and assemble the classes into a jar file. Once that's done
+you can generate the extension module with <code>ant gemerate-extend</code> and build it
+with <code>ant build-extend</code>, then build and run the test program with <code>ant
+build-test test</code>. As a shortcut, you can just type <code>ant modular</code> to run
+this entire sequence of steps in order.</p>
+
+<p>As with the first example, you'll get six document roundtrip failures if you try the
+test with the OTA 2009A schemas and sample documents, due to encoding errors in the
+documents.</p>
+
+<p>You can generate JavaDocs for both modules of the data model code by typing <code>ant
+javadoc-modular</code> on the console. This creates the JavaDocs for the base module in the
+<i>docs/basedocs</i> directory, and those for the extension module in the <i>docs/apidocs</i>
+directory.</p>
+
+</div>
+<div class="h3">
+
+<h3><a name="tradeoffs"></a>Modular generation tradeoffs</h3>
+
+<p>Modular code generation can help make large schemas manageable, especially when different
+parts of the the schemas are being used by different teams within an organization. It should
+be easy to see how you can extend this example to build separate modules for air, cruise, and
+hotel documents using the OTA schemas, for example. With this type of approach the whole
+organization can use common code for working with basic components of the schemas, while
+each team maintains control over the data model used for their specific data. Of course, it's
+also easy to just have each team generate their own data model independently - but then it may
+be difficult to share any code between the different teams.</p>
+
+<p>The only significant drawback to modular generation is that it forces CodeGen to
+generate classes for schema definitions which might otherwise be inlined within other
+definitions. One very simple example of this is the &lt;Success> element used as a
+marker in OTA responses when no errors have occurred. If you generate the schemas all-at-once,
+as in the first example, CodeGen constructs a model where there's no actual data associated
+with the &lt;Success> element, since it's effectively just a choice setting. But if you use
+modular generation, CodeGen needs to construct an empty class to represent the type used by
+a &lt;Success> element (because that type is defined in the common schemas generated in the
+base module), and you must then set an instance of that class on every success response
+(all of which are in the extension module).</p>
+
+</div>
+<div class="h3">
+
+<h3><a name="further"></a>Going further</h3>
+
+<p>Hopefully these two samples have given you an idea of how easily you can customize
+a generated Java data model using the JiBX CodeGen tool and customizations. The CodeGen
+examples included in the JiBX distribution (which are based on a subset of the OTA schemas)
+go much further, including showing how you can simplify a generated data model by
+eliminating components you know you won't be using in your applications. This can be an
+especially valuable feature when working with the OTA schema structures, which include
+many different options which may only be applicable for certain types of usages.</p>
+
+<p>You can also use JiBX for handling your own extension data, using the &lt;TPA_Extensions>
+element included in the OTA message definitions as a placeholder for custom data. If you
+already have a schema definition for your extension data you can just run CodeGen to generate
+a data model for your schema. Modular generation is especially useful in this case, since
+you can generate a stable data model for the OTA schemas as a base module and then generate
+your extensions as a separate extension module, allowing you to easily modify your extensions
+without effecting the base data model. If you instead are starting from Java classes for your
+extension data, you can use the <a href="http://www.jibx.org/fromcode/bindgen.html">BindGen</a>
+tool included in the JiBX distribution to generate a binding and schema definition, then
+distribute the schema definition while using the JiBX binding directly with your existing
+classes.</p>
+
+<p>If you want to use extension data you'll need to change one of the settings from the
+example builds. This is the <code>any-handling="dom"</code> attribute on the root
+&lt;schema-set> element of each customization, which tells CodeGen to construct a Document
+Object Model (DOM) representation for any document data matching an &lt;xs:any> element in
+the schema definition. Change this attribute to <code>any-handling="mapped"</code>, meaning
+CodeGen will look for a JiBX binding definition for any such document data and convert it
+to and from a data model structure.</p>
+
+</div>
+</div>
+</div>
+
+</body>
+</html>

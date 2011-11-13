@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Air Service Implementation</title>
+</head>
+<body class="composite">
+
+<div id="bodycol">
+<div class="app">
+<div class="h3">
+
+<p>A pair of client and server implementations are supplied to demonstrate the air web
+service defined by the <a href="%wsdlgen%">generated WSDL</a>. These both use the same
+basic code, though with alternations to match two different web services stacks - Axis2
+and JiBX/WS.</p>
+
+<p>The client implementations take one or more request document paths as command line
+arguments, reading the documents and submitting them to the server (the request document
+type identifies the type of operation being performed). The response document returned
+by the server is printed to the console so that you can see the results of each
+operation.</p>
+
+<p>The server implementations each read a collection of response documents when the service
+is started, organizing the documents by type. Each time an operation of the service is
+invoked, the service returns one of these response documents of the appropriate type. Aside
+from making sure the document types are correct, the sample code makes no attempt to match
+a particular response document with a particular request document.</p>
+
+<p>Both client and server implementations load configuration information from properties
+files in the classpath. On the client side this configuration information is in an
+<i>air-client.properties</i> file, and specifies the JiBX binding and the web service
+endpoint. On the server side the configuration information is in an
+<i>air-service.properties</i>, and specifies the JiBX binding and the file path and name
+match pattern for the response documents collection.</p>
+
+<p>Each implementation also uses additional configuration information specific to the
+web service stack. The <a href="%axis2impl%">Axis2 implementation</a> supports only
+standard SOAP web services using HTTP. The <a href="%jibxwsimpl%">JiBX/WS implementation</a>
+supports both SOAP and POX (Plain Old XML) web services using HTTP and direct TCP socket
+connections, and also supports <a href="http://www.xbis.org">XBIS</a> encoding of XML
+document for highest performance (only available when JiBX/WS is used on both client and
+server).</p>
+
+
+</div>
+</div>
+</div>
+
+</body>
+</html>

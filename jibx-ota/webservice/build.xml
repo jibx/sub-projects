@@ -1,0 +1,81 @@
+<?xml version="1.0" ?>
+
+<!-- ===========================================================================
+
+Ant build file for JiBX/OTA web service WSDL generation example. This generates
+a WSDL service definition from a simple service interface written in Java. The
+directory structure is:
+
+ -base     Starting classes defining the service
+  +-bin    Compiled class files
+  +-src    Supplied service definition code
+ -config   Configuration properties files
+ -gen      Generated WSDL and schemas
+ -impl     Web service implementation code (with separate build files)
+
+The classes from the "base" directory are first compiled and used as input to
+Jibx2Wsdl, which generates the WSDL for the service to be exposed in the "gen"
+directory. Jibx2Wsdl also copies all the schemas required for the web service
+messages to the "gen" directory, so that all schema references in the WSDL can
+be local references.
+
+This uses the generated data model (either full or modular) from the JiBX/OTA
+distribution root directory (.., relative to this directory)
+============================================================================ -->
+
+<project default="generate-wsdl" basedir=".">
+  
+  <!-- Give user a chance to override without editing this file -->
+  <property name="model-dir" location="${basedir}/.."/>
+  <property file="${model-dir}/build.properties"/>
+  
+  <property name="build-dir" location="${basedir}"/>
+  <property name="wsdlgen-dir" value="${basedir}/gen"/>
+  
+  <path id="jibx-classpath">
+    <pathelement location="${basedir}/config"/>
+    <fileset dir="${jibx-home}/lib" includes="**/*.jar"/>
+  </path>
+  
+  <path id="model-classpath">
+    <fileset dir="${model-dir}/lib" includes="*.jar"/>
+  </path>
+
+  <!-- Delete generated code and class files -->
+  <target name="clean">
+    <delete quiet="true" dir="${wsdlgen-dir}"/>
+    <delete quiet="true" dir="${basedir}/base/bin"/>
+  </target>
+  
+  <!-- Compile interface definition classes -->
+  <target name="compile-base">
+    <delete quiet="true" dir="${basedir}/base/bin"/>
+    <mkdir dir="${basedir}/base/bin"/>
+    <echo message="Compiling interface definition class(es)"/>
+    <javac srcdir="${basedir}/base/src" destdir="${basedir}/base/bin"
+        debug="on" debuglevel="vars" classpathref="model-classpath"/>
+  </target>
+  
+  <!-- Generate bindings, schemas, and WSDL -->
+  <target name="generate-wsdl" depends="compile-base">
+    <delete quiet="true" dir="${wsdlgen-dir}"/>
+    <echo message="Running Jibx2Wsdl tool"/>
+    <java classname="org.jibx.ws.wsdl.tools.Jibx2Wsdl" fork="true" failonerror="true">
+      <classpath>
+        <path refid="jibx-classpath"/>
+        <path refid="model-classpath"/>
+      </classpath>
+      <arg value="-p"/>
+      <arg value="${basedir}/base/bin"/>
+      <arg value="-s"/>
+      <arg value="${basedir}/base/src"/>
+      <arg value="-t"/>
+      <arg value="${wsdlgen-dir}"/>
+      <arg value="-d"/>
+      <arg value="-u"/>
+      <arg value="classpath:/META-INF/binding.xml;${ota-schemas}/*.xsd"/>
+      <arg value="org.ota.ws.AirService"/>
+    </java>
+  </target>
+
+</project>

@@ -1,0 +1,16 @@
+<service name="AirService" protocol="POX">
+  <service-class>org.ota.ws.AirServiceImpl</service-class>
+  <operation method="avail"/>
+  <operation method="book"/>
+  <operation method="bookModify"/>
+  <operation method="checkin"/>
+  <operation method="demandTicket"/>
+  <operation method="details"/>
+  <operation method="fareDisplay"/>
+  <operation method="flifo"/>
+  <operation method="lowFareSearch"/>
+  <operation method="price"/>
+  <operation method="rules"/>
+  <operation method="schedule"/>
+  <operation method="seatMap"/>
+</service>

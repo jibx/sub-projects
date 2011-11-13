@@ -1,0 +1,229 @@
+<?xml version="1.0" ?>
+
+<!-- ===========================================================================
+Ant build file for Axis2 implementation of service. The directory structure is:
+
+ -client   Client code directory
+  +-bin    Binary class files
+  +-gen    Generated client code
+  +-src    Supplied client implementation code
+ -config   Configuration properties files
+ -server   Server code directory
+  +-bin    Binary class files
+  +-gen    Generated server code
+  +-src    Supplied server implementation code
+
+This uses the generated data model (either full or modular) from the JiBX/OTA
+distribution root directory (../.., relative to this directory), and the
+generated WSDL from the webservice directory (.., relative to this directory).
+It generates Axis2 client and server linkage code from the WSDL, and uses the
+generated data model for the messages.
+============================================================================ -->
+
+<project default="help" basedir=".">
+  
+  <!-- Give user a chance to override without editing this file -->
+  <property name="model-dir" value="${basedir}/../.."/>
+  <property file="${model-dir}/build.properties"/>
+  <property file="build.properties"/>
+  
+  <property name="build-dir" location="${basedir}"/>
+  <property name="build-client" location="${build-dir}/client"/>
+  <property name="build-server" location="${build-dir}/server"/>
+  <property name="package-name" value="org.ota.ws"/>
+  <property name="wsdl-dir" value="${basedir}/../gen"/>
+  <property name="wsdl-path" value="${wsdl-dir}/AirService.wsdl"/>
+  <property name="service-archive-name" value="AirService"/>
+  
+  <path id="jibx-classpath">
+    <fileset dir="${jibx-home}/lib" includes="**/*.jar"/>
+  </path>
+  
+  <path id="axis-classpath">
+    <fileset dir="${axis-home}/lib" includes="**/*.jar"/>
+  </path>
+  
+  <path id="model-classpath">
+    <fileset dir="${model-dir}/lib" includes="*.jar"/>
+  </path>
+
+  <!-- Delete generated code and class files -->
+  <target name="clean">
+    <delete quiet="true" dir="${build-server}/gen/src"/>
+    <delete quiet="true" dir="${build-client}/gen/resources"/>
+    <delete quiet="true" dir="${build-server}/bin"/>
+    <delete quiet="true" dir="${build-client}/gen/src"/>
+    <delete quiet="true" dir="${build-client}/bin"/>
+    <delete quiet="true" file="${service-archive-name}.aar"/>
+  </target>
+
+  <!-- Generate client linkage code from WSDL-->
+  <target name="generate-client">
+    <echo message="Running WSDL2Java task"/>
+    <delete quiet="true">
+      <fileset dir="${build-client}/gen" excludes=".svn/**/*"/>
+    </delete>
+    <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true"
+        failonerror="true">
+      <classpath>
+        <path refid="axis-classpath"/>
+        <path refid="jibx-classpath"/>
+        <path refid="model-classpath"/>
+      </classpath>
+      <!-- -o parameter sets the output root directory -->
+      <arg value="-o"/>
+      <arg value="${build-client}/gen"/>
+      <!-- -p parameter gives the package for Axis2 code generation -->
+      <arg value="-p"/>
+      <arg value="${package-name}"/>
+      <!-- -d parameter selects the databinding framework -->
+      <arg value="-d"/>
+      <arg value="jibx"/>
+      <!-- -Ebindingfile parameter gives the JiBX binding definition -->
+      <arg value="-Ebindingfile"/>
+      <arg value="${model-dir}/bindings/binding.xml"/>
+      <!-- -s generates synchronous methods only -->
+      <arg value="-s"/>
+      <!-- -uri parameter provides the WSDL input -->
+      <arg value="-uri"/>
+      <arg value="${wsdl-path}"/>
+    </java>
+  </target>
+
+  <!-- Generate server linkage code from WSDL-->
+  <target name="generate-server">
+    <echo message="Running WSDL2Java task"/>
+    <delete quiet="true">
+      <fileset dir="${build-server}/gen" excludes=".svn/**/*"/>
+    </delete>
+    <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true"
+        failonerror="true">
+      <classpath>
+        <path refid="axis-classpath"/>
+        <path refid="jibx-classpath"/>
+        <path refid="model-classpath"/>
+      </classpath>
+      <arg value="-o"/>
+      <arg value="${build-server}/gen"/>
+      <arg value="-p"/>
+      <arg value="${package-name}"/>
+      <arg value="-d"/>
+      <arg value="jibx"/>
+      <arg value="-Ebindingfile"/>
+      <arg value="${model-dir}/bindings/binding.xml"/>
+      <!-- -ss parameter says generate server code -->
+      <arg value="-ss"/>
+      <!-- -ss parameter says generate server deployment files -->
+      <arg value="-sd"/>
+      <arg value="-ssi"/>
+      <arg value="-uri"/>
+      <arg value="${wsdl-path}"/>
+    </java>
+    
+    <!-- Replace implementation class in deployment descriptor, so that the
+      message receiver will load an instance of our class rather than the
+      generated skeleton -->
+    <replace file="${build-server}/gen/resources/services.xml"
+      token="Skeleton" value="Impl"/>
+  </target>
+
+  <!-- Compile server code for deployment -->
+  <target name="compile-server">
+    <delete quiet="true" dir="${build-server}/bin"/>
+    <mkdir dir="${build-server}/bin"/>
+    <!-- Compile the generated code -->
+    <javac srcdir="${build-server}/gen" destdir="${build-server}/bin"
+        nowarn="${nowarn}" debug="true">
+      <classpath>
+        <path refid="axis-classpath"/>
+        <path refid="jibx-classpath"/>
+        <path refid="model-classpath"/>
+        <pathelement path="${build-server}/bin"/>
+      </classpath>
+    </javac>
+    <!-- Compile the implementation classes -->
+    <javac srcdir="${build-server}/src" destdir="${build-server}/bin"
+        nowarn="${nowarn}" debug="true">
+      <classpath>
+        <path refid="axis-classpath"/>
+        <path refid="jibx-classpath"/>
+        <path refid="model-classpath"/>
+        <pathelement path="${build-server}/bin"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <!-- Compile client code for execution -->
+  <target name="compile-client">
+    <delete quiet="true" dir="${build-client}/bin"/>
+    <mkdir dir="${build-client}/bin"/>
+    <javac srcdir="${build-client}/gen" destdir="${build-client}/bin"
+        nowarn="${nowarn}" debug="true">
+      <classpath>
+        <path refid="axis-classpath"/>
+        <path refid="jibx-classpath"/>
+        <path refid="model-classpath"/>
+        <pathelement path="${build-client}/bin"/>
+      </classpath>
+    </javac>
+    <javac srcdir="${build-client}/src" destdir="${build-client}/bin"
+        nowarn="${nowarn}" debug="true">
+      <classpath>
+        <path refid="axis-classpath"/>
+        <path refid="jibx-classpath"/>
+        <path refid="model-classpath"/>
+        <pathelement path="${build-client}/bin"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <!-- Package server code as .aar file -->
+  <target name="package">
+    <jar jarfile="${service-archive-name}.aar">
+      <metainf file="${build-server}/gen/resources/services.xml"/>
+      <fileset dir="${build-server}/bin"/>
+      <fileset dir="${basedir}/config/"
+          includes="air-service.properties,log4j.properties"/>
+      <zipfileset dir="${model-dir}/lib" includes="*.jar" prefix="lib"/>
+    </jar>
+  </target>
+
+  <!-- Run the test client -->
+  <target name="run">  
+    <java classname="${package-name}.AirServiceClient"
+        fork="true">
+      <classpath path="${build-client}/bin"/>
+      <classpath location="${basedir}/config"/>
+      <classpath refid="axis-classpath"/>
+      <classpath refid="jibx-classpath"/>
+      <classpath refid="model-classpath"/>
+      <arg value="${ota-samples}/OTA_AirAvailRQ.xml"/>
+      <arg value="${ota-samples}/OTA_AirBookModifyRQ.xml"/>
+      <arg value="${ota-samples}/OTA_AirDetailsRQ.xml"/>
+      <arg value="${ota-samples}/OTA_AirFareDisplayRQ.xml"/>
+      <arg value="${ota-samples}/OTA_AirLowFareSearchRQ.xml"/>
+      <arg value="${ota-samples}/OTA_AirScheduleRQ.xml"/>
+    </java>
+  </target>
+
+  <target name="build-client" depends="generate-client,compile-client"/>
+  <target name="build-server" depends="generate-server,compile-server,package"/>
+  <target name="prepare" depends="clean,build-client,build-server"/>
+  
+  <!-- show list of targets -->
+  <target name="help">
+    <echo message="Targets are:"/>
+    <echo/>
+    <echo message="clean           delete all class files and generated code"/>
+    <echo message="generate-client generate client code using Axis2"/>
+    <echo message="compile-client  compile the client code"/>
+    <echo message="build-client    generate and compile client code"/>
+    <echo message="generate-server generate server code using Axis2"/>
+    <echo message="compile-server  compile the server code"/>
+    <echo message="package         assemble Axis2 .aar service archive file"/>
+    <echo message="build-server    generate and compile server code, and assemble .aar"/>
+    <echo message="prepare         run all steps to build both client and server"/>
+    <echo message="run             run client"/>
+  </target>
+
+</project>

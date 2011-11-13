@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.jibx.ota.osgi</groupId>
+    <artifactId>jibx-ota-osgi</artifactId>
+    <version>1.2.3-SNAPSHOT</version>
+  </parent>
+  
+  <artifactId>jibx-ota-osgi-tour</artifactId>
+  <packaging>bundle</packaging>
+
+  <name>jibx-ota-osgi-tour (opentravel OSGI tour bundle)</name>
+
+  <properties>
+    <systemName>tour</systemName>
+    <schemaFilter>OTA_Tour</schemaFilter>
+    <include-binding>${basedir}/../jibx-ota-osgi-pkg/target/generated-sources/pkg-binding.xml</include-binding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-pkg</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+</project>

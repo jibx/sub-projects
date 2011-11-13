@@ -1,0 +1,16 @@
+<menu label="JiBX/OTA" source-dir=".">
+  <item label="Overview" id="start" file="jibxota.htm" target="index.html"/>
+  <item label="Data Models" id="datamodel" file="datamodel.htm"/>
+  <item label="WSDL Generation" id="wsdlgen" file="wsdlgen.htm"/>
+  <item label="Web Service" id="servimpl" file="serviceimpl.htm">
+    <item label="Axis2 Implementation" id="axis2impl" file="axis2impl.htm"/>
+    <item label="JiBX/WS Implementation" id="jibxwsimpl" file="jibxwsimpl.htm"/>
+  </item>
+  <item label="Eclipse Projects" id="eclipse" file="eclipseprojs.htm"/>
+  <item label="OSGi packaging" id="jibxotaosgi" file="jibxotaosgi.htm"/>
+  <item label="Support" id="support" file="support.htm"/>
+  <!-- Link used for online version only -->
+<!--  <item label="JavaDocs">
+    <item label="Full Model" id="apidocs" target="./apidocs/index.html"/>
+  </item> -->
+</menu>

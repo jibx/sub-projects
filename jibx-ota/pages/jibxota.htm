@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>JiBX/OTA: OTA Message Exchange with JiBX</title>
+</head>
+<body class="composite">
+
+<div id="bodycol">
+<div class="app">
+<div class="h3">
+
+<h3><a name="intro"></a>What is JiBX/OTA?</h3>
+
+<p>JiBX/OTA is a set of examples and sample code intended to help developers working with
+the <a href="http://www.opentravel.org/">Open Travel Alliance</a> schemas. It includes
+two different examples of JiBX code generation from the OTA schemas, an example of WSDL
+generation from a Java interface for a web service based on OTA messages, and two different
+sample implementations of a client and server for the web service.</p>
+
+<p>JiBX offers a number of advantages over alternative data binding frameworks for working
+with the OTA schemas. For starters, it does a better job of handling schema definitions:</p>
+
+<ul>
+<li>&lt;xs:documentation> items in schema definitions are converted to JavaDocs, making
+relevant documentation directly available to developers</li>
+<li>&lt;xs:choice> components are converted to type-safe representations with (optionally)
+checked get/set methods to prevent usage errors</li>
+<li>Repeated components in the schema definition, including repeated &lt;xs:choice>
+components, are represented with type-safe arrays or (for Java 5 and above) typed lists</li>
+<li>Unused common definitions are ignored, and definitions used only in one place are
+inlined, where possible, avoiding the creation of unnecessary added classes</li>
+</ul>
+
+<p>JiBX also provides much greater flexibility than other alternatives, including easy
+ways to:</p>
+
+<ul>
+<li>Selectively generate only the schema components required for specific messages</li>
+<li>Simplify schema definitions by deleting components not needed for your application
+(without any modification to the actual schemas)</li>
+<li>Use the popular Joda date/time types for better representations of schema data/time
+types</li>
+<li>Substitute one schema type for another, allowing the use of simpler Java equivalents
+(such as <code>int</code> or <code>long</code> in place of <code>java.math.BigInteger</code></li>
+<li>Extend the code generation with supplied decorators for purposes such as adding
+<code>java.io.Serializable</code> handling to generated classes (or with your own custom
+decorators)</li>
+<li>Choose between Java 5 typed lists and arrays or untyped lists, and between Java 5
+enums and custom enumeration types, for compatibility with older JVMs</li>
+<li>Build modular representations, so that development teams can control the portions of
+the data model relevant to their own work without effecting other teams</li>
+</ul>
+
+<p>On the web services side, JiBX gives the best support for generating WSDL service
+definitions from code (even if you're not actually using JiBX at runtime). When used with
+the JiBX/WS web services framework JiBX also provides the fastest web services available,
+including support for <a href="http://www.xbis.org">XBIS encoding</a> which doubles your
+speed in converting to and from XML while cutting data volumes in half. JiBX/WS also
+gives the flexibility of using direct XML document exchanges (without SOAP wrappers), and
+efficient TCP socket transport (both with and without SOAP).</p>
+
+</div>
+<div class="h3">
+
+<h3><a name="before"></a>Before you start</h3>
+
+<p>Before you can try out any of the JiBX/OTA examples you'll first need to download the
+current <a href="http://sourceforge.net/project/showfiles.php?group_id=69358">JiBX code</a>
+and whichever version of the OTA schema distribution you're planning to use (available from
+the <a href="http://www.opentravel.org/Specifications/Default.aspx">OTA Specifications
+page</a> - the current build of JiBX/OTA has been tested with the OTA 2009A schemas, and
+partially tested with the 2010B public review schemas, but
+prior versions of the OTA schemas have also been used with JiBX code generation). You'll
+also need to have a Java 5 or later distribution installed on your development system (JiBX
+itself is compatible with older versions of Java, and can also generate code compatible
+with older versions of Java, but the examples are configured to use Java 5 typed collections).
+Finally, you'll need the <a href="http://ant.apache.org/">Apache Ant</a> build tool installed
+on your development system.</p>
+
+<p>For the web service implementation examples you'll also need the appropriate web service
+stack - either <a href="http://ws.apache.org/axis2/">Apache Axis2</a> or
+<a href="http://www.jibx.org/jibxws">JiBX/WS</a> - and a Java web server such as
+<a href="http://tomcat.apache.org">Apache Tomcat</a>.</p>
+
+</div>
+<div class="h3">
+
+<h3><a name="structure"></a>Download structure</h3>
+
+<img alt="JiBX/OTA download structure" src="images/structure.gif" align="left" height="480" width="133"/>
+
+<p>The distribution uses a hierarchy of directories for the different examples. At the root
+is the data model example, demonstrating code generation from the OTA schemas. The root level
+also includes this documentation, in the <i>docs</i> directory. The <i>test</i> directory
+contains test code which uses the generated data model to roundtrip sample documents provided
+with the OTA schemas, first unmarshalling each document into a data model structure, then
+marshalling the data model back to XML, and finally comparing the marshalled XML document
+with the original.</p>
+
+<p>The <i>webservice</i> directory contains the web service demonstration code. The 
+<i>base</i> directory contains source code for a Java interface class defining methods using
+the OTA request and response documents relating to air travel. This interface is used as
+input to the <a href="http://www.jibx.org/fromcode/jibx2wsdl.html">Jibx2Wsdl</a> tool
+included in the JiBX distribution, which generates a WSDL service description from the
+interface. The <i>axis2</i> and <i>jibxws</i> directories contain the code for two
+different implementations of the service, using the respective web services stacks.</p>
+
+</div>
+<div class="h3">
+
+<h3><a name="starting"></a>Getting started</h3>
+
+<p>You need to build a data model first, as discussed on the <a href="%datamodel%">Data
+Models</a> page. Once you have a data model, you can run the <a href="%wsdlgen%">WSDL
+Generation</a> step to create a WSDL service definition. You can then use the WSDL to
+build a <a href="%axis2impl%">Axis2 Implementation</a> and/or a
+<a href="%jibxwsimpl%">JiBX/WS Implementation</a> of the web service.</p>
+
+</div>
+</div>
+</div>
+
+</body>
+</html>

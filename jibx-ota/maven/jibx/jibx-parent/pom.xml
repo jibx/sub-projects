@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>oss-parent</artifactId>
+    <groupId>org.sonatype.oss</groupId>
+    <version>5</version>
+  </parent>
+
+  <groupId>org.jibx</groupId>
+  <artifactId>jibx-parent</artifactId>
+  <version>1.2.3-SNAPSHOT</version>
+
+  <packaging>pom</packaging>
+  <name>jibx-parent (JiBX parent project)</name>
+  <description>JiBX parent shared settings</description>
+  
+  <url>http://jibx.org</url>
+
+  <properties>
+    <jibx.plugin.version>1.2.2</jibx.plugin.version>	<!-- Plugin version to use in jibx builds (initially can't be current version) -->
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <inherited>true</inherited>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>  <!-- Need to check with Dennis on this -->
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-ManifestVersion>2</Bundle-ManifestVersion>
+            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+            <Export-Package>org.jibx.*;version=${project.version}</Export-Package>
+            <Import-Package>
+	    *;resolution:=optional,
+	    </Import-Package>
+            <Bundle-Version>${project.version}</Bundle-Version>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <licenses>
+    <license>
+      <name>BSD</name>
+      <url>http://jibx.sourceforge.net/jibx-license.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <issueManagement>
+    <system>jira</system>
+    <url>http://jira.codehaus.org/browse/JIBX</url>
+  </issueManagement>
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
+
+  <scm>
+    <url>http://jibx.svn.sourceforge.net/viewvc/jibx/trunk/jibx-ota/maven/jibx-parent/</url>
+    <connection>scm:svn:https://jibx.svn.sourceforge.net/svnroot/jibx/trunk/jibx-ota/maven/jibx-parent/</connection>
+    <developerConnection>scm:svn:https://jibx.svn.sourceforge.net/svnroot/jibx/trunk/jibx-ota/maven/jibx-parent/</developerConnection>
+  </scm>
+
+  <developers>
+  	<developer>
+  	  <name>Dennis Sosnoski</name>
+  	  <email>dms@sosnoski.com</email>
+      <url>http://www.sosnoski.co.nz</url>
+  	</developer>
+  </developers>
+  <contributors>
+      <contributor>
+          <name>Nigel Charman</name>
+          <email>nigel@charman.net.nz</email>
+      </contributor>
+      <contributor>
+          <name>Andreas Brenk</name>
+          <email>mail@andreasbrenk.com</email>
+          <url>http://andreasbrenk.com/</url>
+          <timezone>+01</timezone>
+      </contributor>
+      <contributor>
+          <name>Frank Mena</name>
+          <email>frankm.os@gmail.com</email>
+          <timezone>-08</timezone>
+      </contributor>
+      <contributor>
+          <name>Jerome Bernard</name>
+          <email>jerome.bernard@gmail.com</email>
+          <timezone>+1</timezone>
+      </contributor>
+      <contributor>
+          <name>Don Corley</name>
+          <email>don@donandann.com</email>
+          <url>http://www.donandann.com/</url>
+          <timezone>-8</timezone>
+      </contributor>
+  </contributors>
+
+</project>

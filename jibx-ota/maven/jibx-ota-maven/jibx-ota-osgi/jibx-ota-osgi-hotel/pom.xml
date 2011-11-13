@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.jibx.ota.osgi</groupId>
+    <artifactId>jibx-ota-osgi</artifactId>
+    <version>1.2.3-SNAPSHOT</version>
+  </parent>
+  
+  <artifactId>jibx-ota-osgi-hotel</artifactId>
+  <packaging>bundle</packaging>
+
+  <name>jibx-ota-osgi-hotel (opentravel OSGI hotel bundle)</name>
+
+  <properties>
+    <systemName>hotel</systemName>
+    <schemaFilter>OTA_Hotel</schemaFilter>
+  </properties>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <groupId>org.jibx</groupId>
+        <artifactId>maven-jibx-plugin</artifactId>
+        <version>${jibx-plugin-version}</version>
+
+        <executions>
+          <execution>
+            <id>generate-java-code-from-schema</id>
+            <goals>
+              <goal>schema-codegen</goal>
+            </goals>
+	        <configuration>
+	        	<directory>${schemaDirectory}</directory>
+	            <customizations>
+	            	<customization>${customization-file}</customization>
+	            </customizations>
+	            <includes>
+	                <include>${schemaFilter}*RS.xsd</include>
+	                <include>${schemaFilter}*RQ.xsd</include>
+	            </includes>
+	            <excludes>	<!-- This is in the profile package -->
+	            	<exclude>OTA_HotelPreferences.xsd</exclude>
+	            </excludes>
+                <includeBindings>
+                  <includeBinding>${basedir}/../jibx-ota-osgi-profile/target/generated-sources/profile-binding.xml</includeBinding>
+                </includeBindings>
+	        </configuration>
+          </execution>
+          <execution>
+              <id>compile-binding</id>
+              <goals>
+                  <goal>bind</goal>
+              </goals>
+              <configuration>
+                  <directory>target/generated-sources</directory>
+                  <includes>
+                    <include>${systemName}-binding.xml</include>
+                  </includes>
+              </configuration>
+          </execution>
+        </executions>
+	  </plugin>
+
+  </plugins>
+  </build>
+ 
+  <dependencies>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-profile</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+</project>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.jibx.ota.osgi</groupId>
+    <artifactId>jibx-ota-osgi</artifactId>
+    <version>1.2.3-SNAPSHOT</version>
+  </parent>
+  
+  <artifactId>jibx-ota-osgi-codetable</artifactId>
+  <packaging>bundle</packaging>
+
+  <name>jibx-ota-osgi-codetable (opentravel OSGI codetable bundle)</name>
+
+  <properties>
+    <systemName>codetable</systemName>
+    <schemaFilter>OpenTravel_CodeTable</schemaFilter>	<!-- Not used, since I use the on-line copy -->
+    <schemaDirectory>${basedir}/../jibx-ota-osgi-schema/src/main/schema/codetable-schema</schemaDirectory>
+  </properties>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <groupId>org.jibx</groupId>
+        <artifactId>maven-jibx-plugin</artifactId>
+        <version>${jibx-plugin-version}</version>
+
+        <executions>
+          <execution>
+            <id>generate-java-code-from-schema</id>
+            <goals>
+              <goal>schema-codegen</goal>
+            </goals>
+	        <configuration>
+	        	<directory>${schemaDirectory}</directory>
+	            <customizations>
+            	  <customization>${customization-file}</customization>
+	            </customizations>
+	            <includes>
+	                <include>${schemaFilter}*.xsd</include>
+	            </includes>
+                  <includeBindings>
+                    <includeBinding>${basedir}/../jibx-ota-osgi-base/target/generated-sources/base-binding.xml</includeBinding>
+                  </includeBindings>
+	        </configuration>
+          </execution>
+          <execution>
+              <id>compile-binding</id>
+              <goals>
+                  <goal>bind</goal>
+              </goals>
+              <configuration>
+                  <directory>target/generated-sources</directory>
+                  <includes>
+                    <include>${systemName}-binding.xml</include>
+                  </includes>
+              </configuration>
+          </execution>
+        </executions>
+  	  </plugin>
+  
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-base</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+</project>

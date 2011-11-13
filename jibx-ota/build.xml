@@ -1,0 +1,428 @@
+<?xml version="1.0"?>
+
+<!-- ===========================================================================
+
+Ant build file for JiBX/OTA data model. This supports generating two different
+versions of the model - the 'full' target generates the full set of OTA schemas
+at once, the 'modular' target generates in two steps (first the common and base
+definitions, then the rest of the schemas using the already-generated
+definitions). Both versions use customizations to control aspects of the
+generated data model. The directory structure is:
+
+ -bindings   Saved copies of generated binding(s) (for use by Axis2 WSDL2Java)
+ -config     Configuration properties files
+ -gen        Generated data model
+  +-base     Generated data model base binding and source code (if used)
+  +-bin      Compiled data model classes
+  +-src      Generated data model binding and source code
+ -lib        Destination for created jar file(s)
+ -test       Sample document roundtrip test
+  +-bin      Compiled class files
+  +-src      Roundtrip test program
+ -webservice Web service code (with separate build files)
+
+============================================================================ -->
+
+<project basedir="." default="help">
+  
+  <!-- Get common settings -->
+  <property file="build.properties"/>
+  <property name="distribname" value="jibx-ota-1.0"/>
+  
+  <!-- make sure required jars are present -->
+  <condition property="runtime-jars-found">
+    <available file="${jibx-home}/lib/jibx-run.jar"/>
+  </condition>
+  <condition property="binding-jars-found">
+    <and>
+      <available file="${jibx-home}/lib/bcel.jar"/>
+      <available file="${jibx-home}/lib/jibx-bind.jar"/>
+      <available file="${jibx-home}/lib/jibx-run.jar"/>
+    </and>
+  </condition>
+  <available property="extras-jar-found" file="${jibx-home}/lib/jibx-extras.jar"/>
+  
+  <!-- set classpath for compiling and running application with JiBX -->
+  <path id="classpath">
+    <pathelement location="${basedir}/config"/>
+    <fileset dir="${jibx-home}/lib" includes="*.jar"/>
+  </path>
+  
+  <!-- make sure runtime jars are present -->
+  <target name="check-runtime">
+    <fail unless="jibx-home">JiBX home directory not found - set jibx-home path in build.properties file.</fail>
+    <fail unless="runtime-jars-found">Required JiBX runtime jar jibx-run.jar was not found in JiBX home lib directory (${jibx-home}/lib)</fail>
+  </target>
+  
+  <!-- make sure extras jars are present -->
+  <target name="check-extras" depends="check-runtime">
+    <fail unless="extras-jar-found">Required JiBX extras jar jibx-extras.jar was not found in JiBX home lib directory (${jibx-home}/lib)</fail>
+  </target>
+  
+  <!-- make sure binding jars are present -->
+  <target name="check-binding" depends="check-runtime">
+    <fail unless="binding-jars-found">Required JiBX binding jar jibx-bind.jar or bcel.jar was not found in JiBX home lib directory (${jibx-home}/lib)</fail>
+  </target>
+  
+  <!-- make sure modular base jar is present -->
+  <target name="check-base">
+    <condition property="base-found">
+      <available file="${basedir}/lib/base.jar"/>
+    </condition>
+    <fail unless="base-found">Need to first run base generation and build (ant generate-base build-base).</fail>
+  </target>
+  
+  <!-- clean compiled class files and generated code+binding -->
+  <target name="clean-partial">
+    <delete quiet="true" dir="${basedir}/gen/bin"/>
+    <delete quiet="true" file="${basedir}/lib/ota.jar"/>
+    <delete quiet="true" dir="${basedir}/test/bin"/>
+    <delete quiet="true" dir="${basedir}/docs/baseapi"/>
+    <delete quiet="true">
+      <fileset dir="${basedir}" includes="*.log"/>
+    </delete>
+  </target>
+  <target name="clean" depends="clean-partial">
+    <delete quiet="true" dir="${basedir}/lib"/>
+    <delete quiet="true" dir="${basedir}/bindings"/>
+    <delete quiet="true" dir="${basedir}/docs/apidocs"/>
+    <delete quiet="true" dir="${basedir}/gen/src"/>
+    <delete quiet="true" dir="${basedir}/gen/base"/>
+  </target>
+  
+  <!-- generate full set of classes and bindings all-at-once -->
+  <target name="generate-full" depends="check-runtime,clean">
+    
+    <echo message="Running code generation from schema"/>
+    <delete quiet="true" dir="${basedir}/gen/src"/>
+    <java classname="org.jibx.schema.codegen.CodeGen" fork="yes"
+        classpathref="classpath" failonerror="true">
+      <jvmarg value="-Xms512M"/>
+      <jvmarg value="-Xmx512M"/>
+      <arg value="-c"/>
+      <arg value="${basedir}/custom-full.xml"/>
+      <arg value="-s"/>
+      <arg value="${ota-schemas}"/>
+      <arg value="-t"/>
+      <arg value="${basedir}/gen/src"/>
+      <arg value="*RQ.xsd"/>
+      <arg value="*RS.xsd"/>
+    </java>
+    
+  </target>
+  
+  <!-- generate only base classes and binding as a separate step -->
+  <target name="generate-base" depends="check-runtime,clean">
+    
+    <echo message="Running base code generation from schema"/>
+    <delete quiet="true" dir="${basedir}/gen/base"/>
+    <java classname="org.jibx.schema.codegen.CodeGen" fork="yes"
+        classpathref="classpath" failonerror="true">
+      <jvmarg value="-Xms512M"/>
+      <jvmarg value="-Xmx512M"/>
+      <arg value="-c"/>
+      <arg value="${basedir}/custom-modular-base.xml"/>
+      <arg value="-s"/>
+      <arg value="${ota-schemas}"/>
+      <arg value="-t"/>
+      <arg value="${basedir}/gen/base"/>
+      <arg value="-u"/>
+      <arg value="http://www.opentravel.org/OTA/2003/05"/>
+      <arg value="OTA_Common*.xsd"/>
+      <arg value="OTA_SimpleTypes.xsd"/>
+    </java>
+    
+  </target>
+  
+  <!-- generate extension classes and binding as a separate step -->
+  <target name="generate-extend" depends="check-runtime,check-base,clean-partial">
+    
+    <echo message="Running extension code generation from schema"/>
+    <delete quiet="true" dir="${basedir}/gen/src"/>
+    <java classname="org.jibx.schema.codegen.CodeGen" fork="yes" failonerror="true">
+      <classpath>
+        <path refid="classpath"/>
+        <pathelement location="${basedir}/lib/base.jar"/>
+      </classpath>
+      <jvmarg value="-Xms512M"/>
+      <jvmarg value="-Xmx512M"/>
+      <arg value="-c"/>
+      <arg value="${basedir}/custom-modular-extends.xml"/>
+      <arg value="-s"/>
+      <arg value="${ota-schemas}"/>
+      <arg value="-t"/>
+      <arg value="${basedir}/gen/src"/>
+      <arg value="-i"/>
+      <arg value="classpath:META-INF/base-binding.xml"/>
+      <arg value="*RQ.xsd"/>
+      <arg value="*RS.xsd"/>
+    </java>
+    
+  </target>
+  
+  <!-- compile, bind, and jar all-at-once generated classes as a separate step -->
+  <target name="build-full" depends="check-runtime">
+  
+    <echo message="Compiling Java source code"/>
+    <delete quiet="true" dir="${basedir}/gen/bin"/>
+    <mkdir dir="${basedir}/gen/bin"/>
+    <javac srcdir="${basedir}/gen/src" destdir="${basedir}/gen/bin" debug="on">
+      <classpath refid="classpath"/>
+    </javac>
+    
+    <echo message="Running JiBX binding compiler"/>
+    <java classname="org.jibx.binding.Compile" fork="yes" failonerror="true">
+      <classpath>
+        <path refid="classpath"/>
+        <pathelement location="${basedir}/gen/bin"/>
+      </classpath>
+      <jvmarg value="-Xms512M"/>
+      <jvmarg value="-Xmx512M"/>
+      <arg value="${basedir}/gen/src/binding.xml"/>
+    </java>
+    
+    <echo message="Building jar"/>
+    <delete quiet="true" dir="${basedir}/lib"/>
+    <mkdir dir="${basedir}/lib"/>
+    <jar jarfile="${basedir}/lib/ota.jar" basedir="${basedir}/gen/bin">
+      <metainf dir="${basedir}/gen/src" includes="*.xml"/>
+    </jar>
+    
+    <echo message="Copying binding definition(s)"/>
+    <delete quiet="true" dir="${basedir}/bindings"/>
+    <mkdir dir="${basedir}/bindings"/>
+    <copy todir="${basedir}/bindings">
+      <fileset dir="${basedir}/gen/src" includes="*.xml"/>
+    </copy>
+    
+  </target>
+  
+  <!-- javadoc all-at-once generated classes as a separate step -->
+  <target name="javadoc-full" depends="check-runtime">
+    
+    <echo message="Generating JavaDocs"/>
+    <delete quiet="true" dir="${basedir}/docs/apidocs"/>
+    <javadoc
+        destdir="${basedir}/docs/apidocs"
+        classpathref="classpath"
+        author="false"
+        version="false"
+        noindex="true"
+        nohelp="true"
+        notree="false"
+        windowtitle="JiBX/OTA Full Model"
+        Overview="${basedir}/gen/full-overview.htm"
+        doctitle="JiBX/OTA Full Model"
+        bottom="&lt;table width='80%%'&gt;&lt;tr&gt;&lt;td width='50%%'&gt;&lt;p align='center'&gt;&lt;/td&gt;&lt;td width='50%%'&gt;&lt;p align='center'&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;">
+      <packageset dir="${basedir}/gen/src"/>
+      <arg value="-J-Xms512M"/>
+      <arg value="-J-Xmx512M"/>
+    </javadoc>
+    
+  </target>
+  
+  <!-- compile, bind, and jar modular base classes -->
+  <target name="build-base" depends="check-runtime">
+  
+    <echo message="Compiling Java source code"/>
+    <delete quiet="true" dir="${basedir}/gen/bin"/>
+    <mkdir dir="${basedir}/gen/bin"/>
+    <javac srcdir="${basedir}/gen/base" destdir="${basedir}/gen/bin" debug="on"
+        classpathref="classpath"/>
+    
+    <echo message="Running JiBX binding compiler"/>
+    <java classname="org.jibx.binding.Compile" fork="yes" failonerror="true">
+      <classpath>
+        <path refid="classpath"/>
+        <pathelement location="${basedir}/gen/bin"/>
+      </classpath>
+      <jvmarg value="-Xms512M"/>
+      <jvmarg value="-Xmx512M"/>
+      <arg value="${basedir}/gen/base/base-binding.xml"/>    
+    </java>
+    
+    <echo message="Building jar"/>
+    <delete quiet="true" dir="${basedir}/lib"/>
+    <mkdir dir="${basedir}/lib"/>
+    <jar jarfile="${basedir}/lib/base.jar" basedir="${basedir}/gen/bin">
+      <metainf dir="${basedir}/gen/base" includes="*.xml"/>
+    </jar>
+    
+    <echo message="Copying binding definition(s)"/>
+    <delete quiet="true" dir="${basedir}/bindings"/>
+    <mkdir dir="${basedir}/bindings"/>
+    <copy todir="${basedir}/bindings">
+      <fileset dir="${basedir}/gen/base" includes="*.xml"/>
+    </copy>
+    
+  </target>
+  
+  <!-- compile and bind the modular classes extending base classes -->
+  <target name="build-extend" depends="check-runtime,check-base">
+  
+    <echo message="Compiling Java source code"/>
+    <delete quiet="true" dir="${basedir}/gen/bin"/>
+    <mkdir dir="${basedir}/gen/bin"/>
+    <javac srcdir="${basedir}/gen/src" destdir="${basedir}/gen/bin" debug="on">
+      <classpath>
+        <path refid="classpath"/>
+        <pathelement path="${basedir}/lib/base.jar"/>
+      </classpath>
+    </javac>
+    
+    <echo message="Running JiBX binding compiler"/>
+    <java classname="org.jibx.binding.Compile" fork="yes" failonerror="true">
+      <classpath>
+        <path refid="classpath"/>
+        <pathelement path="${basedir}/lib/base.jar"/>
+        <pathelement location="${basedir}/gen/bin"/>
+      </classpath>
+      <jvmarg value="-Xms512M"/>
+      <jvmarg value="-Xmx512M"/>
+      <arg value="${basedir}/gen/src/binding.xml"/>    
+    </java>
+    
+    <echo message="Building jar"/>
+    <jar jarfile="${basedir}/lib/ota.jar" basedir="${basedir}/gen/bin">
+      <metainf dir="${basedir}/gen/src" includes="*.xml"/>
+      <manifest>
+        <attribute name="Class-Path" value="base.jar"/>
+      </manifest>
+    </jar>
+    
+    <echo message="Copying binding definition(s)"/>
+    <copy todir="${basedir}/bindings">
+      <fileset dir="${basedir}/gen/src" includes="*.xml"/>
+    </copy>
+    
+  </target>
+  
+  <!-- javadoc modular generated classes as a separate step -->
+  <target name="javadoc-modular" depends="check-runtime">
+    
+    <echo message="Generating JavaDocs"/>
+    <delete quiet="true" dir="${basedir}/docs/baseapi"/>
+    <delete quiet="true" dir="${basedir}/docs/apidocs"/>
+    <javadoc
+        destdir="${basedir}/docs/baseapi"
+        classpathref="classpath"
+        author="false"
+        version="false"
+        noindex="true"
+        nohelp="true"
+        notree="false"
+        windowtitle="JiBX/OTA Model"
+        doctitle="JiBX/OTA Model"
+        bottom="&lt;table width='80%%'&gt;&lt;tr&gt;&lt;td width='50%%'&gt;&lt;p align='center'&gt;&lt;/td&gt;&lt;td width='50%%'&gt;&lt;p align='center'&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;">
+      <packageset dir="${basedir}/gen/base"/>
+      <arg value="-J-Xms512M"/>
+      <arg value="-J-Xmx512M"/>
+    </javadoc>
+    <javadoc
+        destdir="${basedir}/docs/apidocs"
+        author="false"
+        version="false"
+        noindex="true"
+        nohelp="true"
+        notree="false"
+        link="${basedir}/docs/baseapi"
+        windowtitle="JiBX/OTA Model"
+        Overview="${basedir}/gen/modular-overview.htm"
+        doctitle="JiBX/OTA Model"
+        bottom="&lt;table width='80%%'&gt;&lt;tr&gt;&lt;td width='50%%'&gt;&lt;p align='center'&gt;&lt;/td&gt;&lt;td width='50%%'&gt;&lt;p align='center'&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;">
+      <classpath>
+        <path refid="classpath"/>
+        <pathelement path="${basedir}/lib/base.jar"/>
+      </classpath>
+      <packageset dir="${basedir}/gen/src"/>
+      <arg value="-J-Xms512M"/>
+      <arg value="-J-Xmx512M"/>
+    </javadoc>
+    
+  </target>
+  
+  <!-- compile test program as a separate step -->
+  <target name="build-test" depends="check-runtime">
+  
+    <echo message="Compiling Java source code"/>
+    <delete quiet="true" dir="${basedir}/test/bin"/>
+    <mkdir dir="${basedir}/test/bin"/>
+    <javac srcdir="${basedir}/test/src" destdir="${basedir}/test/bin" debug="on">
+      <classpath>
+        <path refid="classpath"/>
+        <fileset dir="${basedir}/lib" includes="*.jar"/>
+      </classpath>
+    </javac>
+    
+  </target>
+  
+  <!-- run test -->
+  <target name="test" depends="check-extras">
+    <echo message="Roundtripping the test documents..."/>
+    <java classname="org.ota.Roundtrip" fork="true" failonerror="true">
+      <classpath>
+        <path refid="classpath"/>
+        <fileset dir="${basedir}/lib" includes="*.jar"/>
+        <pathelement location="${basedir}/test/bin"/>
+      </classpath>
+      <arg value="binding"/>
+      <arg value="org.ota"/>
+      <arg value="${ota-samples}"/>
+    </java>
+    <echo message="Roundtripped test documents successfully"/>
+  </target>
+  
+  <!-- run the document building process -->
+  <target name="project-docs">
+    <echo message="Building the documentation..."/>
+    <delete>
+      <fileset dir="${basedir}/docs" includes="**/*.html" excludes="apidocs/**/*"/>
+    </delete>
+    <java classname="com.sosnoski.site.Builder" fork="true" failonerror="true">
+      <classpath>
+        <pathelement location="${jibx-home}/lib/jibx-run.jar"/>
+        <fileset dir="${jibx-home}/build/docs/lib" includes="*.jar"/>
+      </classpath>
+      <arg value="${basedir}/pages/jibxota-site.xml"/>
+      <arg value="pages/jibxsub-template.vm"/>
+      <arg value="${basedir}/docs"/>
+    </java>
+  </target>
+
+  <!-- Build the zip file for distribution -->
+  <target name="distrib" depends="clean">
+    <ant dir="webservice" antfile="build.xml" target="clean"/>
+    <ant dir="webservice/axis2" antfile="build.xml" target="clean"/>
+    <ant dir="webservice/jibxws" antfile="build.xml" target="clean"/>
+    <delete file="${basedir}/${distribname}.zip" quiet="true"/>
+    <zip zipfile="${basedir}/${distribname}.zip">
+      <zipfileset prefix="jibx-ota" dir="${basedir}"
+          excludes="*.zip,*.log,**/.svn,pages/**/*,docs/apidocs/**/*,docs/baseapi/**/*"/>
+    </zip>
+  </target>
+  
+  <!-- full compile/bind/test run -->
+  <target name="full" depends="generate-full,build-full,build-test,test"/>
+  <target name="modular"
+      depends="generate-base,build-base,generate-extend,build-extend,build-test,test"/>
+  
+  <!-- show list of targets -->
+  <target name="help">
+    <echo message="Targets are:"/>
+    <echo/>
+    <echo message="clean           delete all class files and generated code"/>
+    <echo message="generate-full   generate code from full set of schemas at once"/>
+    <echo message="build-full      compile, bind, and jar code from full set"/>
+    <echo message="javadoc-full    build javadocs for full set (requires source kept)"/>
+    <echo message="generate-base   modular generate only common base schemas"/>
+    <echo message="build-base      compile, bind, and jar modular base code"/>
+    <echo message="generate-extend generate non-base schemas as extension to common"/>
+    <echo message="build-extend    compile, bind, and jar modular extension"/>
+    <echo message="javadoc-modular build javadocs for modular (requires source kept)"/>
+    <echo message="build-test      compile the roundtrip test program"/>
+    <echo message="test            roundtrip the test documents"/>
+    <echo message="full            generate, compile, bind, and test normal"/>
+    <echo message="modular         generate, compile, bind, and test modular"/>
+  </target>
+
+</project>

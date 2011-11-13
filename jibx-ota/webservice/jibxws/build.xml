@@ -1,0 +1,140 @@
+<?xml version="1.0" ?>
+
+<!-- ===========================================================================
+Ant build file for JiBX/WS implementation of service. The directory structure
+is:
+
+ -client   Client code directory
+  +-bin    Binary class files
+  +-src    Supplied client implementation code
+ -config   Configuration properties files
+ -server   Server code directory
+  +-bin    Binary class files
+  +-src    Supplied server implementation code
+
+This uses the generated data model (either full or modular) from the JiBX/OTA
+distribution root directory (../.., relative to this directory).
+============================================================================ -->
+
+<project default="help" basedir=".">
+  
+  <!-- Give user a chance to override without editing this file -->
+  <property name="model-dir" value="${basedir}/../.."/>
+  <property file="${model-dir}/build.properties"/>
+  <property file="build.properties"/>
+  
+  <property name="build-dir" location="${basedir}"/>
+  <property name="build-client" location="${build-dir}/client"/>
+  <property name="build-server" location="${build-dir}/server"/>
+  <property name="build-lib" location="${build-dir}/lib"/>
+  <property name="package-name" value="org.ota.ws"/>
+  <property name="war-name" value="AirService"/>
+  
+  <path id="jibx-classpath">
+    <fileset dir="${jibx-home}/lib" includes="**/*.jar"/>
+  </path>
+  
+  <path id="jibxws-classpath">
+    <fileset dir="${jibxws-home}/lib" includes="**/*.jar"/>
+  </path>
+  
+  <path id="model-classpath">
+    <fileset dir="${model-dir}/lib" includes="*.jar"/>
+  </path>
+
+  <!-- Delete generated code and class files -->
+  <target name="clean">
+    <delete quiet="true" dir="${build-server}/bin"/>
+    <delete quiet="true" dir="${build-client}/bin"/>
+    <delete quiet="true" file="${war-name}.war"/>
+  </target>
+
+  <!-- Compile server code for deployment -->
+  <target name="compile-server">
+    <delete quiet="true" dir="${build-server}/bin"/>
+    <mkdir dir="${build-server}/bin"/>
+    <javac srcdir="${build-server}/src" destdir="${build-server}/bin"
+        nowarn="${nowarn}" debug="true">
+      <classpath>
+        <path refid="jibxws-classpath"/>
+        <path refid="jibx-classpath"/>
+        <path refid="model-classpath"/>
+        <pathelement path="${build-server}/bin"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <!-- Compile client code for execution -->
+  <target name="compile-client">
+    <delete quiet="true" dir="${build-client}/bin"/>
+    <mkdir dir="${build-client}/bin"/>
+    <javac srcdir="${build-client}/src" destdir="${build-client}/bin"
+        nowarn="${nowarn}" debug="true">
+      <classpath>
+        <path refid="jibxws-classpath"/>
+        <path refid="jibx-classpath"/>
+        <path refid="model-classpath"/>
+        <pathelement path="${build-client}/bin"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <!-- Build the war file for distribution -->
+  <target name="package" depends="compile-server">
+    <delete quiet="true" file="${basedir}/${war-name}.war"/>
+    <war destfile="${basedir}/${war-name}.war" webxml="${basedir}/config/web.xml">
+      <lib dir="${jibxws-home}/lib" includes="jibx-ws*.jar,commons-logging.jar"/>
+      <lib dir="${jibx-home}/lib" includes="jibx-run.jar,jibx-extras.jar,xbis-jibx.jar,joda-time.jar,xpp3.jar,log4j.jar"/>
+      <lib dir="${model-dir}/lib" includes="*.jar"/>
+      <classes dir="${build-server}/bin"/>
+      <classes dir="${basedir}/config/" includes="air-service.properties,log4j.properties"/>
+      <webinf dir="${basedir}/config/" includes="air-service.xml,air-service-pox.xml"/>
+    </war>
+  </target>
+
+  <!-- Run the test client -->
+  <target name="run">  
+    <java classname="${package-name}.AirServiceClient" fork="true">
+      <classpath path="${build-client}/bin"/>
+      <classpath location="${basedir}/config"/>
+      <classpath refid="jibxws-classpath"/>
+      <classpath refid="jibx-classpath"/>
+      <classpath refid="model-classpath"/>
+      <arg value="${ota-samples}/OTA_AirAvailRQ.xml"/>
+      <arg value="${ota-samples}/OTA_AirBookModifyRQ.xml"/>
+      <arg value="${ota-samples}/OTA_AirDetailsRQ.xml"/>
+      <arg value="${ota-samples}/OTA_AirFareDisplayRQ.xml"/>
+      <arg value="${ota-samples}/OTA_AirLowFareSearchRQ.xml"/>
+      <arg value="${ota-samples}/OTA_AirScheduleRQ.xml"/>
+    </java>
+  </target>
+
+  <!-- Run the TCP server -->
+  <target name="start-tcp">
+    <java classname="org.jibx.ws.tcp.server.TcpServer" fork="true">
+      <classpath path="${build-server}/bin"/>
+      <classpath location="${basedir}/config"/>
+      <classpath refid="jibxws-classpath"/>
+      <classpath refid="jibx-classpath"/>
+      <classpath refid="model-classpath"/>
+      <arg value="${basedir}/config/air-service.xml=8123" />
+      <arg value="${basedir}/config/air-service-pox.xml=8124" />
+    </java>
+  </target>
+
+  <target name="prepare" depends="clean,compile-client,compile-server,package"/>
+  
+  <!-- show list of targets -->
+  <target name="help">
+    <echo message="Targets are:"/>
+    <echo/>
+    <echo message="clean           delete all class files and generated code"/>
+    <echo message="compile-client  compile the client code"/>
+    <echo message="compile-server  compile the server code"/>
+    <echo message="package         assemble .war file"/>
+    <echo message="prepare         run all steps to build both client and server"/>
+    <echo message="run             run client"/>
+    <echo message="start-tcp       start the TCP socket server"/>
+  </target>
+
+</project>

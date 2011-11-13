@@ -1,0 +1,76 @@
+<schema-set xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    generate-all="true" delete-annotations="true" any-handling="dom"
+    type-substitutions="xs:integer xs:int xs:decimal xs:float">
+  <name-converter strip-suffixes="_Type Type"/>
+  <schema-type type-name="dateTime" format-name="DateTime.UTC"/>
+  <schema-type type-name="date" format-name="LocalDate.default"/>
+  <schema-type type-name="time" format-name="LocalTime.local"/>
+  <class-decorator class="org.jibx.schema.codegen.extend.CollectionMethodsDecorator"/>
+  <schema-set package="org.ota.air" names="OTA_Air*.xsd">
+    <name-converter strip-prefixes="OTA_Air"/>
+    <schema-set generate-all="false" prefer-inline="true" names="OTA_AirCommonTypes.xsd OTA_AirPreferences.xsd"/>
+  </schema-set>
+  <schema-set package="org.ota.cruise" names="OTA_Cruise*.xsd">
+    <name-converter strip-prefixes="OTA_Cruise"/>
+    <schema-set generate-all="false" prefer-inline="true" names="OTA_CruiseCommonTypes.xsd"/>
+  </schema-set>
+  <schema-set package="org.ota.destination" generate-all="false"
+      names="OTA_DestinationActivity.xsd">
+    <name-converter strip-prefixes="OTA_DestinationActivity"/>
+  </schema-set>
+  <schema-set package="org.ota.dynamicpkg" names="OTA_DynamicPkg*.xsd">
+    <name-converter strip-prefixes="OTA_DynamicPkg"/>
+    <schema-set names="*CommonTypes.xsd" generate-all="false"/>
+  </schema-set>
+  <schema-set package="org.ota.golf" names="OTA_Golf*.xsd">
+    <name-converter strip-prefixes="OTA_Golf"/>
+    <schema-set generate-all="false" prefer-inline="true" names="OTA_GolfCommonTypes.xsd"/>
+  </schema-set>
+  <schema-set package="org.ota.hotel" names="OTA_Hotel*.xsd">
+    <name-converter strip-prefixes="OTA_Hotel"/>
+    <schema-set generate-all="false" prefer-inline="true"
+        names="OTA_HotelCommonTypes.xsd OTA_HotelContentDescription.xsd
+        OTA_HotelEvent.xsd OTA_HotelPreferences.xsd OTA_HotelReservation.xsd
+        OTA_HotelRFP.xsd"/>
+  </schema-set>
+  <schema-set package="org.ota.insurance" names="OTA_Insurance*.xsd">
+    <name-converter strip-prefixes="OTA_Insurance"/>
+    <schema-set generate-all="false" prefer-inline="true" names="OTA_InsuranceCommonTypes.xsd"/>
+  </schema-set>
+  <schema-set package="org.ota.loyalty" names="OTA_Loyalty*.xsd">
+    <name-converter strip-prefixes="OTA_Loyalty"/>
+    <schema-set generate-all="false" prefer-inline="true" names="OTA_LoyaltyCommonTypes.xsd"/>
+  </schema-set>
+  <schema-set package="org.ota.misc" generate-all="true"
+      names="OTA_Authorization*.xsd OTA_Cancel*.xsd OTA_Delete*.xsd OTA_DestActivity*.xsd  OTA_Error*.xsd OTA_FileAttachment*.xsd OTA_Notif*.xsd OTA_Ping*.xsd OTA_Purchase*.xsd OTA_Read*.xsd OTA_ResRetrieveRS.xsd">
+    <name-converter strip-prefixes="OTA_"/>
+  </schema-set>
+  <schema-set package="org.ota.pkg" names="OTA_Pkg*.xsd">
+    <name-converter strip-prefixes="OTA_Pkg"/>
+    <schema-set generate-all="false" prefer-inline="true"
+        names="OTA_PkgCommonTypes.xsd OTA_PkgReservation.xsd"/>
+  </schema-set>
+  <schema-set package="org.ota.profile" names="OTA_Profile*.xsd">
+    <name-converter strip-prefixes="OTA_Profile"/>
+    <schema-set generate-all="false" prefer-inline="true" names="OTA_Profile.xsd"/>
+  </schema-set>
+  <schema-set package="org.ota.rail" names="OTA_Rail*.xsd">
+    <name-converter strip-prefixes="OTA_Rail"/>
+    <schema-set generate-all="false" prefer-inline="true" names="OTA_RailCommonTypes.xsd"/>
+  </schema-set>
+  <schema-set package="org.ota.screen" names="OTA_Screen*.xsd">
+    <name-converter strip-prefixes="OTA_Screen"/>
+  </schema-set>
+  <schema-set package="org.ota.tour" generate-all="true" names="OTA_Tour*.xsd">
+    <name-converter strip-prefixes="OTA_Tour"/>
+  </schema-set>
+  <schema-set package="org.ota.itin" names="OTA_TravelItinerary*.xsd">
+    <name-converter strip-prefixes="OTA_TravelItinerary"/>
+  </schema-set>
+  <schema-set package="org.ota.update" names="OTA_Update*.xsd">
+    <name-converter strip-prefixes="OTA_Update"/>
+  </schema-set>
+  <schema-set package="org.ota.vehicle" names="OTA_Veh*.xsd">
+    <name-converter strip-prefixes="OTA_Veh"/>
+  </schema-set>
+</schema-set> 

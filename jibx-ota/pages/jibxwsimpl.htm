@@ -1,0 +1,263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>JiBX/WS Web Service Implementation</title>
+</head>
+<body class="composite">
+
+<div id="bodycol">
+<div class="app">
+<div class="h3">
+
+<p>JiBX/WS is a web services stack build around JiBX data binding, currently in beta
+release. It supports both SOAP and POX (Plain Old XML) web services, and comes with
+high-efficiency TCP socket connection support in addition to the more-conventional HTTP
+connections. JiBX/WS also supports <a href="http://www.xbis.org">XBIS</a> XML encoding
+as a high-performance alternative to text XML (currently only usable when both client
+and server are running on JiBX/WS).</p>
+
+<p>JiBX/WS currently does not support code generation, instead using the type of object
+passed on a client call to determine the service operation being invoked, and calling
+directly to the appropriate method of a configured service implementation class on the
+server.</p>
+
+</div>
+<div class="h3">
+
+<h3><a name="setup"></a>JiBX/WS setup</h3>
+
+<p>You need to download and install (by simply expanding the download file to a directory
+on your system) the JiBX/WS distribution before you can try out the JiBX/WS service example.
+To work with the current 0.9 release of JiBX/WS, you also need to add a version of the
+<a href="http://commons.apache.org/logging/">Apache Commons Logging</a> jar to your JiBX/WS
+<i>lib</i> directory. You can get this jar by downloading it directly, or if you've installed
+Axis2 just copy the jar (named <i>commons-logging-#.jar</i>, where the '#' represents a
+version number) from the Axis2 <i>lib</i> directory.</p>
+
+
+</div>
+<div class="h3">
+
+<h3><a name="build"></a>Build the service implementation</h3>
+
+<p>After you've installed JiBX/WS (and added the Commons Logging jar, if necessary), you
+next need to configure the supplied web service build. First edit the <i>build.properties</i>
+file in the <i>webservice/jibxws</i> directory of your JiBX OTA distribution and set the
+path to your JiBX/WS installation (again using doubled '\' directory separator characters
+on Windows, or Unix/Linux-style '/' directory separator characters, as with
+the other .properties files). Next edit the <i>air-service.properties</i> file in the
+<i>webservice/jibxws/config</i> directory to set the path to the directory containing the
+documents you want to use as response messages (which can just be the directory containing
+the OTA sample documents). If you're going to be deploying the service war on a different
+host system, or on a port other than 8080, you also need to edit the <i>air-client.properties</i>
+file in the same directory and change the service endpoint address (see the next section for
+details of the settings in this file).</p>
+
+<p>Next open a console to the <i>webservice/jibxws</i> directory and type <code>ant
+prepare</code>. This runs a sequence of build steps, compiling the supplied client and
+server implementation code and then creating an <i>AirService.war</i> file which can be
+deployed directly to a web server supporting the Java Servlet API (such as
+<a href="http://tomcat.apache.org/">Apache Tomcat</a>).</p>
+
+<p>Once you've deployed the .war to your web server, you can try it out using the supplied
+client by typing <code>ant run</code> on the console. As supplied, this sends several of
+the OTA sample request documents to the server, printing the response received for each
+request.</p>
+
+
+</div>
+<div class="h3">
+
+<h3><a name="variations"></a>Trying protocol, transport, and encoding variations</h3>
+
+<p>The JiBX/WS implementation of the example service supports a variety of options. The
+settings in the <i>webservice/jibxws/config/air-client.properties</i> file controls which
+options are used by the client in connecting to the server. Here's the file as supplied:</p>
+
+<div id="source"><pre># name of binding to be used
+org.ota.ws.AirServiceClient.binding=binding
+
+# name of package containing binding
+org.ota.ws.AirServiceClient.package=org.ota
+
+# service endpoint address (for TCP, use endpoint 8123 for SOAP and 8124 for POX)
+org.ota.ws.AirServiceClient.endpoint=http://localhost:8080/AirService/soap/air-service
+#org.ota.ws.AirServiceClient.endpoint=http://localhost:8080/AirService/pox/air-service
+#org.ota.ws.AirServiceClient.endpoint=tcp://localhost:8123
+#org.ota.ws.AirServiceClient.endpoint=tcp://localhost:8124
+
+# protocol to use for requests
+org.ota.ws.AirServiceClient.protocol=SOAP1.1
+#org.ota.ws.AirServiceClient.protocol=POX
+
+# request media type
+org.ota.ws.AirServiceClient.request=xml
+#org.ota.ws.AirServiceClient.request=x-xbis
+
+# response media type(s)
+org.ota.ws.AirServiceClient.response=xml
+#org.ota.ws.AirServiceClient.response=x-xbis,xml
+</pre></div>
+
+<p>The .properties file format uses '#' as a comment marker for lines, so only the lines
+which do not start with a '#' are actually active in the configuration. This allows the
+configuration settings required for different variations to all be simultaneously present
+in the file. To change a setting to one of the other provided alternatives, just add a
+'#' at the start of the current active setting line and remove the '#' from the start of the
+one you want to use.</p>
+
+<p>The variations you can try are of three types. First is the service endpoint, which
+also identifies the type of transport to be used. Second is the protocol to be used for
+exchanging XML messages (which also effects the service endpoint). Third is the media type
+(or encoding) used for request and response XML messages.</p>
+
+<h4>HTTP variations</h4>
+
+<p>The <code>org.ota.ws.AirServiceClient.endpoint</code> value gives the actual service
+endpoint URL. With HTTP connections different paths are used for the SOAP and POX service
+endpoints. These different paths are actually controlled by the <i>web.xml</i> web
+application configuration file used in the .war file, which is a copy of the
+<i>webservice/jibxws/config/web.xml</i> file; if you only want to use SOAP or only want
+to use POX you can change the <i>web.xml</i> to eliminate the unneeded definitions, and
+also eliminate the path step used to distinguish between the two.</p>
+
+<p>When changing the endpoint setting between SOAP and POX, you also
+need to set the <code>org.ota.ws.AirServiceClient.protocol</code> value to match.</p>
+
+<p>XBIS encoding for XML can be separately enabled for each message direction. The
+<code>org.ota.ws.AirServiceClient.request</code> value tells the JiBX/WS client code
+which form of encoding to use for request messages sent to the server: "xml" for plain
+XML, "x-xbis" for XBIS-encoded XML. The <code>org.ota.ws.AirServiceClient.response</code>
+gives one or more comma-separated encoding types to be requested for the response. If
+the list consists of only "xml" or only "x-xbis", the server will be required to respond
+using that form; if both are in the list, the choice will be up to the server. In this
+case a server using JiBX/WS will respond with the XBIS encoding of XML, while other servers
+should ignore the "x-xbis" reference and respond with plain XML.</p>
+
+<h4>TCP variations</h4>
+
+<p>With TCP transport, separate ports are used for the SOAP and POX service endpoints.
+These different ports are controlled by command line arguments passed to the TCP server
+built into JiBX/WS. Using the supplied <i>build.xml</i>, the server is run with this
+target, which must be run (by typing <code>ant start-tcp</code> in a separate console
+open to the <i>webservice/jibxws</i> directory - separate, since it will remain in use
+until you terminate the TCP server):</p>
+
+<div id="source"><pre>  &lt;!-- Run the TCP server -->
+  &lt;target name="start-tcp">
+    &lt;java classname="org.jibx.ws.tcp.server.TcpServer" fork="true">
+      &lt;classpath path="${build-server}/bin"/>
+      &lt;classpath refid="jibxws-classpath"/>
+      &lt;classpath refid="jibx-classpath"/>
+      &lt;classpath refid="model-classpath"/>
+      &lt;arg value="${basedir}/config/air-service.xml=8123" />
+      &lt;arg value="${basedir}/config/air-service-pox.xml=8124" />
+    &lt;/java>
+  &lt;/target>
+</pre></div>
+
+<p>The arguments passed to the TCP server each give a service configuration and the
+port number at which that configuration is to be deployed. These service configuration
+files, <i>webservice/jibxws/config/air-service.xml</i> and
+<i>webservice/jibxws/config/air-service-pox.xml</i>, are also used for HTTP endpoings.
+In the HTTP case, the files are included in the .war <i>WEB-INF</i> directory and
+referenced from the <i>web.xml</i> file.</p>
+
+<p>As with HTTP services, besides changing the path to use the appropriate endpoint for
+SOAP or POX over TCP, you also need to set the <code>org.ota.ws.AirServiceClient.protocol</code>
+value to match.</p>
+
+<p>Again as with HTTP, XBIS encoding for XML can be separately enabled for each message
+direction. The <code>org.ota.ws.AirServiceClient.request</code> value tells the JiBX/WS
+client code which form of encoding to use for request messages sent to the server, and
+the <code>org.ota.ws.AirServiceClient.response</code> gives one or more comma-separated
+encoding types to be requested for the response.</p>
+
+
+</div>
+<div class="h3">
+
+<h3><a name="code"></a>Implementation code</h3>
+
+<p>The JiBX/WS client implementation code is in the <i>webservice/jibxws/client/src</i>
+directory. Unlike the Axis2 version of the code, which uses a service-specific stub class
+generated from the WSDL service definition, the JiBX/WS version just creates a generic
+<code>org.jibx.ws.client.Client</code> instance which defines a <code>call()</code> method
+used for all server requests. This listing shows the relevant portions of the client
+code:</p>
+
+<div id="source"><pre>        // create the appropriate type of client
+        Protocol protocol =
+            ProtocolDirectory.getProtocol(getRequiredProperty(PROTOCOL_KEY, props));
+        MessageOptions options = new MessageOptions();
+        options.setOutMediaTypeCode(getRequiredProperty(REQUEST_TYPE_KEY, props));
+        options.setInMediaTypeCodes(splitString(getRequiredProperty(RESPONSE_TYPE_KEY,
+            props)));
+        Client client = protocol.createClient(getRequiredProperty(ENDPOINT_KEY, props),
+            factory, options);
+        // to just create a SOAP client using only XML media type, replace the above
+        //   with the following
+//        Client client = new SoapClient(getRequiredProperty(ENDPOINT_KEY, props), factory);
+        
+        // process each command line parameter as document path
+        for (int i = 0; i &lt; args.length; i++) {
+            String path = args[i];
+            try {
+                
+                // read input document and send to server
+                IUnmarshallingContext uctx = factory.createUnmarshallingContext();
+                Object req = uctx.unmarshalDocument(new FileInputStream(path), null);
+                Object rsp = client.call(req);
+                ...
+</pre></div>
+
+<p>The code at the top creates the <code>org.jibx.ws.client.Client</code> instance used
+to invoke the service. Different types of clients are used for SOAP vs. POX
+protocols, so this code first looks up the protocol to be used (as specified in the
+properties file) and then creates the appropriate type
+of client to use that protocol. It also sets the request (output) and response (input)
+media types. If you only want to use SOAP protocol with plain text XML you can replace this
+code with the single commented-out line at the bottom of the block.</p>
+
+<p>The JiBX/WS server implementation code is in the <i>webservice/jibxws/server/src</i>
+directory. This code is just a simple implementation of the service methods, with no
+special JiBX/WS hooks. The service configuration files used by JiBX (in this case,
+<i>webservice/jibxws/config/air-service.xml</i> and
+<i>webservice/jibxws/config/air-service-pox.xml</i>) specify the service class and operation
+methods.</p>
+
+
+</div>
+<div class="h3">
+
+<h3><a name="advantages"></a>JiBX/WS advantages</h3>
+
+<p>The main advantages of JiBX/WS are performance and flexibility. Compared to Axis2 and
+other Java web service frameworks, JiBX/WS is generally about twice as fast in the basic
+XML/SOAP processing when using plain text XML. Using XBIS encoding makes it even faster,
+and also cuts the data size to about half of the text XML size. This makes it a very
+efficient data transfer stack, especially when using TCP transport.</p>
+
+<p>Of course, you need to be using JiBX/WS on both client and server in order to take
+advantage of XBIS encoding and TCP transport (since neither is supported by other web
+services stacks in a compatible manner). This makes these features most relevant to use
+within a single organization, or with an established group of partners who can all agree
+on using JiBX/WS.</p>
+
+<p>In other situations you can still use JiBX/WS for standard XML/SOAP services over HTTP
+transport, to take advantage of the basic JiBX/WS performance advantage. If clients are
+also using JiBX/WS they can request XBIS responses for even better responses, while
+maintaining full compatibility with other stacks. You can even mix approaches, for example
+by activating a TCP/POX service endpoint for internal use within an organization, an
+HTTP/SOAP endpoint for access to the same service from other SOAP stacks, and an HTTP/POX
+endpoint for use by clients that just want to work directly with XML without the SOAP
+wrapper (and without having to go through a SOAP web services stack).</p>
+
+
+</div>
+</div>
+</div>
+
+</body>
+</html>

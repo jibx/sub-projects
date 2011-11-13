@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.jibx.ota.osgi</groupId>
+    <artifactId>jibx-ota-osgi</artifactId>
+    <version>1.2.3-SNAPSHOT</version>
+  </parent>
+  
+  <artifactId>jibx-ota-osgi-rail</artifactId>
+  <packaging>bundle</packaging>
+
+  <name>jibx-ota-osgi-rail (opentravel OSGI rail bundle)</name>
+
+  <properties>
+    <systemName>rail</systemName>
+    <schemaFilter>OTA_Rail</schemaFilter>
+    <include-binding>${basedir}/../jibx-ota-osgi-profile/target/generated-sources/profile-binding.xml</include-binding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.jibx.ota.osgi</groupId>
+      <artifactId>jibx-ota-osgi-profile</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+</project>
