@@ -10,7 +10,7 @@
   
   <groupId>org.jibx.ota.osgi</groupId>
   <artifactId>jibx-ota-maven</artifactId>
-  <version>1.2.3-SNAPSHOT</version>
+  <version>1.2.4-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>jibx-ota-maven (opentravel OSGI maven projects)</name>

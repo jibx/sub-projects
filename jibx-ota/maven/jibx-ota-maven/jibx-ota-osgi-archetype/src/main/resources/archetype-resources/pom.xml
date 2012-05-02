@@ -14,14 +14,14 @@
     <dependency>
       <groupId>org.jibx.ota.osgi</groupId>
       <artifactId>jibx-ota-osgi-hotel</artifactId>
-      <version>1.2.3-SNAPSHOT</version>
+      <version>1.2.4-SNAPSHOT</version>
     </dependency>
 #end
 #if(${travel-segment}=='ping')
     <dependency>
       <groupId>org.jibx.ota.osgi</groupId>
       <artifactId>jibx-ota-osgi-ping</artifactId>
-      <version>1.2.3-SNAPSHOT</version>
+      <version>1.2.4-SNAPSHOT</version>
     </dependency>
 #end
   </dependencies>

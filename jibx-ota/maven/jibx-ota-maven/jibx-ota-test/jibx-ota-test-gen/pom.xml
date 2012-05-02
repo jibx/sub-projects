@@ -5,7 +5,7 @@
   <parent>
     <artifactId>jibx-ota-test</artifactId>
     <groupId>org.jibx.ota.test</groupId>
-    <version>1.2.3-SNAPSHOT</version>
+    <version>1.2.4-SNAPSHOT</version>
   </parent>
 
   <artifactId>jibx-ota-test-gen</artifactId>
