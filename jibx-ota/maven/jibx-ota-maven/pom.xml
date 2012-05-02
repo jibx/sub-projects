@@ -18,9 +18,9 @@
   <description>JiBX schema - Opentravel OSGI Packaging project</description>
 
   <properties>
-    <jibx-version>1.2.3-SNAPSHOT</jibx-version>
-    <jibx-plugin-version>1.2.2</jibx-plugin-version>
-    <joda-time-version>2.0</joda-time-version>
+    <jibx-version>1.2.4-SNAPSHOT</jibx-version>
+    <jibx-plugin-version>1.2.3</jibx-plugin-version>
+    <joda-time-version>2.1</joda-time-version>
   </properties>
 
   <licenses>
