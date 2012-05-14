@@ -3,7 +3,7 @@
   <parent>
     <artifactId>jibx-ota-maven</artifactId>
     <groupId>org.jibx.ota.osgi</groupId>
-    <version>1.2.5-SNAPSHOT</version>
+    <version>1.2.4.1-SNAPSHOT</version>
   </parent>
   
   <modelVersion>4.0.0</modelVersion>

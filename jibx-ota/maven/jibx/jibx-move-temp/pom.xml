@@ -4,7 +4,7 @@
 
   <groupId>org.jibx</groupId>
   <artifactId>jibx-move-temp</artifactId>
-  <version>1.2.5-SNAPSHOT</version>
+  <version>1.2.4.1-SNAPSHOT</version>
   
   <packaging>pom</packaging>
   <name>jibx-move-temp (Move source code ***REMOVE THIS PROJECT***)</name>
