@@ -19,7 +19,7 @@
 
   <properties>
     <jibx-version>1.2.5-SNAPSHOT</jibx-version>
-    <jibx-plugin-version>1.2.3</jibx-plugin-version>
+    <jibx-maven-plugin-version>1.2.3</jibx-maven-plugin-version>
     <joda-time-version>2.1</joda-time-version>
   </properties>
 

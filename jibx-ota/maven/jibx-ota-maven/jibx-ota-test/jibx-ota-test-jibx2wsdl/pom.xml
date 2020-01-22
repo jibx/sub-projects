@@ -18,7 +18,7 @@
       <plugin>
           <groupId>org.jibx</groupId>
           <artifactId>jibx-maven-plugin</artifactId>
-          <version>${jibx-plugin-version}</version>
+          <version>${jibx-maven-plugin-version}</version>
           <executions>
               <execution>
                   <id>jibx-2-wsdl</id>
