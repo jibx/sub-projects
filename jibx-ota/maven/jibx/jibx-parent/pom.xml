@@ -29,8 +29,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>1.5</source>  <!-- Need to check with Dennis on this -->
-          <target>1.5</target>
+          <source>1.6</source>  <!-- Need to check with Dennis on this -->
+          <target>1.6</target>
         </configuration>
       </plugin>
       
