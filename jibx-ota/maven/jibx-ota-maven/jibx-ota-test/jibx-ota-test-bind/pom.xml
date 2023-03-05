@@ -18,7 +18,7 @@
       <plugin>
           <groupId>org.jibx</groupId>
           <artifactId>jibx-maven-plugin</artifactId>
-          <version>1.2.2</version>
+          <version>1.2.2-SNAPSHOT</version>
           <configuration>
               <directory>src/test/resources/org/jibx/samples/jibx</directory>
               <includes>
